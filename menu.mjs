@@ -4,7 +4,7 @@
 export const menu = [
   { id: 'menus', label: 'Menús', items: [
     ['Menú 1, 12 unidades', '6 nigiris de salmón y 6 maki california salmón', 12, '3762faea63d5029b0f0bf1e36ca68f86'],
-    ['Menú 2, 9 unidades', '3 nigiris de salmón, 2 nigiri de atún, niguiri de anguila y 3 california salmón', 9.95, 'b677311323b67003721ca589fceb6599'],
+    ['Menú 2, 9 unidades', '3 nigiri de salmón, 2 nigiri de atún, nigiri de anguila y 3 california salmón', 9.95, 'b677311323b67003721ca589fceb6599'],
     ['Menú 3, 11 unidades', '8 nigiris de salmón y 3 makis variados', 10.5, 'c47b626a785484680354b85763ce09fe'],
     ['Menú 4, 11 unidades', '4 nigiris de salmón, 4 nigiris de atún y 3 makis variados', 11.5, '6bfd043699552bf930b502fd847685c0'],
     ['Menú 5, 16 unidades', '2 nigiris de salmón, 2 nigiris de atún, 2 makis de salmón, 2 makis de atún, 2 langostinos y 2 anguilas', 13.95, '61998fc6616d9f843a972574327e307d'],
@@ -26,7 +26,7 @@ export const menu = [
     ['Pan de Gambas', 'Las tortitas de gamba de siempre, crujientes. Van con cualquier plato.', 1.5, 'da229bd078a22848882a5cdf0461e912'],
     ['Rainbow Roll, 9 unidades', 'Roll cubierto por fuera con láminas de pescado variado.', 9.9, ''],
   ] },
-  { id: 'niguiri', label: 'Niguiri', items: [
+  { id: 'niguiri', label: 'Nigiri', items: [
     ['Nigiri de Anguila, 2 piezas', 'Anguila sobre arroz de sushi, con su salsa dulce.', 3.2, '6a042b825bb737891a440944faeed951'],
     ['Nigiri de Langostino, 2 piezas', 'Langostino cocido sobre arroz de sushi.', 3.2, 'be9ba9bf76ab7b650921a0742de4dd2e'],
     ['Nigiri de Atún, 2 piezas', 'Atún sobre arroz de sushi.', 3.2, 'c7e5260a4987923d35d6d168b6e170c6'],

@@ -21,7 +21,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&family=Dela+Gothic+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="styles.css?v=mwp99ls4">
+<link rel="stylesheet" href="styles.css?v=mwpmq74s">
 <script>document.documentElement.classList.add('js');</script>
 </head>
 <body>
@@ -29,14 +29,14 @@
 <div class="progress" data-progress aria-hidden="true"></div>
 <header class="nav" data-nav>
   <div class="container nav__in">
-    <a class="nav__brand" href="#top" aria-label="Wok Two, inicio">Wok Two</a>
-    <nav class="nav__links" aria-label="Principal"><a class="slide" href="carta.html" data-text="Carta"><span>Carta</span></a><a class="slide" href="#destacados" data-text="Destacados"><span>Destacados</span></a><a class="slide" href="#donde" data-text="Dónde"><span>Dónde</span></a><a class="slide slide--lang" href="en/index.html" hreflang="en" lang="en" aria-label="English version"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>ES</span><span class="roll-b" aria-hidden="true">ES</span></a></nav>
+    <a class="nav__brand" href="#top" aria-label="Wok Two, inicio"><img class="logo" src="logo.svg" alt="" width="40" height="40">Wok Two</a>
+    <nav class="nav__links" aria-label="Principal"><a class="slide" href="carta.html" data-text="Carta"><span>Carta</span></a><a class="slide" href="#destacados" data-text="Destacados"><span>Destacados</span></a><a class="slide" href="#donde" data-text="Dónde"><span>Dónde</span></a><a class="slide" href="#opiniones" data-text="Opiniones"><span>Opiniones</span></a><a class="slide slide--lang" href="en/index.html" hreflang="en" lang="en" aria-label="English version"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>ES</span><span class="roll-b" aria-hidden="true">ES</span></a></nav>
     <a class="nav__cta" href="carta.html" data-open-cart>Pide ahora</a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span></span><span></span><span></span><span class="visually-hidden">Menú</span></button>
   </div>
 </header>
 <div class="menu" id="menu" data-menu hidden>
-  <nav aria-label="Móvil"><a href="#top">Inicio</a><a href="carta.html">Carta</a><a href="#destacados">Destacados</a><a href="#donde">Dónde</a><a href="carta.html" data-open-cart>Pide ahora</a><a class="menu__lang" href="en/index.html" hreflang="en" lang="en" aria-label="English version"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>ES</a></nav>
+  <nav aria-label="Móvil"><a href="#top">Inicio</a><a href="carta.html">Carta</a><a href="#destacados">Destacados</a><a href="#donde">Dónde</a><a href="#opiniones">Opiniones</a><a href="carta.html" data-open-cart>Pide ahora</a><a class="menu__lang" href="en/index.html" hreflang="en" lang="en" aria-label="English version"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>ES</a></nav>
 </div>
 
 <main id="main">
@@ -110,7 +110,7 @@
   <div class="mcard__img" data-slot="dish-169258"><img src="images/1692586255fd4d519d9fb1402cad151c-800.jpg" width="800" height="600" alt="Maki Aguacate, 16 unidades" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Destacado</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Maki Aguacate</h3><span class="mcard__price num">7,50 €</span></div>
-    <p class="mcard__desc">16 unidades. Makis de aguacate. Una opción sin pescado.</p>
+    <p class="mcard__desc">16 unidades. Makis de aguacate. Una opción sin pescado.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Ver descripción" data-hide="Ocultar descripción">Ver descripción</button>
     <button type="button" class="mcard__btn" data-add="Maki Aguacate, 16 unidades" aria-label="Añadir Maki Aguacate al pedido">Añadir</button>
   </div>
 </article>
@@ -118,7 +118,7 @@
   <div class="mcard__img" data-slot="dish-a913d1"><img src="images/a913d11fcfd0991131e583cad5535301-800.jpg" width="800" height="600" alt="Tallarines con Pechuga de Pollo" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Destacado</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Tallarines con Pechuga de Pollo</h3><span class="mcard__price num">5,60 €</span></div>
-    <p class="mcard__desc">Tallarines al wok con tiras de pechuga de pollo.</p>
+    <p class="mcard__desc">Tallarines al wok con tiras de pechuga de pollo.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Ver descripción" data-hide="Ocultar descripción">Ver descripción</button>
     <button type="button" class="mcard__btn" data-add="Tallarines con Pechuga de Pollo" aria-label="Añadir Tallarines con Pechuga de Pollo al pedido">Añadir</button>
   </div>
 </article>
@@ -126,7 +126,7 @@
   <div class="mcard__img" data-slot="dish-71c44b"><img src="images/71c44bcdd9c775c1809aa2f60e42526d-800.jpg" width="800" height="600" alt="Menú 9, 18 unidades" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Destacado</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Menú 9</h3><span class="mcard__price num">14,95 €</span></div>
-    <p class="mcard__desc">18 unidades. 4 californias con cebolla, 4 californias pollo, 4 californias salmón, 2 nigiris de salmón, 2 makis aguacate y 2 makis salmón</p>
+    <p class="mcard__desc">18 unidades. 4 californias con cebolla, 4 californias pollo, 4 californias salmón, 2 nigiris de salmón, 2 makis aguacate y 2 makis salmón</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Ver descripción" data-hide="Ocultar descripción">Ver descripción</button>
     <button type="button" class="mcard__btn" data-add="Menú 9, 18 unidades" aria-label="Añadir Menú 9 al pedido">Añadir</button>
   </div>
 </article>
@@ -134,7 +134,7 @@
   <div class="mcard__img" data-slot="dish-138d44"><img src="images/138d44df06003a8a858a575d1a933795-800.jpg" width="800" height="600" alt="Pollo con Almendras" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Destacado</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Pollo con Almendras</h3><span class="mcard__price num">6,50 €</span></div>
-    <p class="mcard__desc">Pollo salteado con almendras, un clásico de la cocina china.</p>
+    <p class="mcard__desc">Pollo salteado con almendras, un clásico de la cocina china.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Ver descripción" data-hide="Ocultar descripción">Ver descripción</button>
     <button type="button" class="mcard__btn" data-add="Pollo con Almendras" aria-label="Añadir Pollo con Almendras al pedido">Añadir</button>
   </div>
 </article>
@@ -142,7 +142,7 @@
   <div class="mcard__img" data-slot="dish-5e8629"><img src="images/5e86294b819d60594490f6fd067881ab-800.jpg" width="800" height="600" alt="California Salmón, 9 unidades" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Destacado</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">California Salmón</h3><span class="mcard__price num">6,50 €</span></div>
-    <p class="mcard__desc">9 unidades. California roll de salmón.</p>
+    <p class="mcard__desc">9 unidades. California roll de salmón.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Ver descripción" data-hide="Ocultar descripción">Ver descripción</button>
     <button type="button" class="mcard__btn" data-add="California Salmón, 9 unidades" aria-label="Añadir California Salmón al pedido">Añadir</button>
   </div>
 </article>
@@ -182,12 +182,25 @@
       </div>
     </div>
   </section>
+
+  <section class="sec sec--white" id="opiniones" aria-labelledby="h-rev">
+    <div class="container">
+      <div class="shead reveal"><span class="label">Opiniones</span><h2 class="title-xl" id="h-rev">Lo que dicen de nosotros</h2></div>
+      <ul class="reviews">
+        <li class="review reveal" style="--d:0s"><div class="review__who"><img src="images/avatar-1.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Daniel Vázquez</strong></div><p class="review__stars" role="img" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★<i></i></span></p><blockquote class="review__text"><p>Una pareja mayor de asiáticos que hace una comida para repetir siempre. Unos tallarines (caseros por cierto) con pato con un sabor espectacular, nunca había probado algo similar.</p><p>Un sushi, que estando en el centro, baratísimo de precio y buenísimo, no encuentras otro igual calidad cantidad y precio.</p><p>Y una mujer, que con su sonrisa y su poco entendimiento de español te atiende espectacular.</p></blockquote><p class="review__from">Reseña de Google Maps</p></li>
+        <li class="review reveal" style="--d:0.1s"><div class="review__who"><img src="images/avatar-2.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Maria Sanchez carrillo</strong></div><p class="review__stars" role="img" aria-label="4 de 5 estrellas"><span aria-hidden="true">★★★★<i>★</i></span></p><blockquote class="review__text"><p>You get great food for a decent cost! I would advise that the noodles are better (daily fresh and tasty) than the rice. The sushi is also not bad, especially the tempura shrimp one.</p><p>There is a friendly lady taking the orders and they will provide packaging without hesitation if you can't finish your meal.</p><p>The noodles could be too oily for some, but the flavours are deep!</p></blockquote><p class="review__from">Reseña de Google Maps</p></li>
+        <li class="review reveal" style="--d:0.2s"><div class="review__who"><img src="images/avatar-3.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Camilo Vanderhuck</strong></div><p class="review__stars" role="img" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★<i></i></span></p><blockquote class="review__text"><p>Pedimos a domicilio por primera vez y llegó bastante rápido.</p><p>Los tallarines están riquísimos, el de pato especialmente. El arroz también muy rico.</p><p>Vienen buenas cantidades y a muy buena temperatura.</p><p>La verdad es que repetiremos.</p></blockquote><p class="review__from">Reseña de Google Maps</p></li>
+        <li class="review reveal" style="--d:0.30000000000000004s"><div class="review__who"><img src="images/avatar-4.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Reichel Mora</strong></div><p class="review__stars" role="img" aria-label="5 de 5 estrellas"><span aria-hidden="true">★★★★★<i></i></span></p><blockquote class="review__text"><p>Se come genial por un muy buen precio. Tienen menús de sushi muy variados de distintas cantidades. Los tallarines están buenísimos y vienen raciones muy grandes por el bajo precio que tienen. La dueña es super simpática y ofrece un excelente servicio.</p></blockquote><p class="review__from">Reseña de Google Maps</p></li>
+      </ul>
+      <p class="reviews__all"><a class="btn-white" href="https://www.google.com/maps/search/?api=1&query=Wok%20Two%2C%20Calle%20Cuarteles%2015%2C%2029002%20M%C3%A1laga" rel="noopener"><span>Ver todas en Google Maps</span><svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></p>
+    </div>
+  </section>
 </main>
 
 <footer class="foot">
   <div class="container foot__grid">
-    <div class="foot__brand"><a class="foot__logo" href="#top">Wok Two</a><p>Sushi, makis, fideos y arroces en la calle Cuarteles. Sabor auténtico en Málaga. A domicilio o para recoger.</p></div>
-    <div class="foot__col"><h2>Navegación</h2><ul><li><a href="carta.html">Carta</a></li><li><a href="#destacados">Destacados</a></li><li><a href="#donde">Dónde</a></li></ul></div>
+    <div class="foot__brand"><a class="foot__logo" href="#top"><img class="logo" src="logo.svg" alt="" width="44" height="44">Wok Two</a><p>Sushi, makis, fideos y arroces en la calle Cuarteles. Sabor auténtico en Málaga. A domicilio o para recoger.</p></div>
+    <div class="foot__col"><h2>Navegación</h2><ul><li><a href="carta.html">Carta</a></li><li><a href="#destacados">Destacados</a></li><li><a href="#donde">Dónde</a></li><li><a href="#opiniones">Opiniones</a></li></ul></div>
     <div class="foot__col"><h2>Contacto</h2><ul><li><a href="https://www.google.com/maps/search/?api=1&query=Wok%20Two%2C%20Calle%20Cuarteles%2015%2C%2029002%20M%C3%A1laga" rel="noopener">C/ Cuarteles, 15</a></li><li><a href="https://www.google.com/maps/search/?api=1&query=Wok%20Two%2C%20Calle%20Cuarteles%2015%2C%2029002%20M%C3%A1laga" rel="noopener">29002 Málaga</a></li><li><a href="carta.html" data-open-cart>Pide ahora</a></li></ul></div>
     <div class="foot__col"><h2>Horario</h2><ul><li>Todos los días</li><li class="num">12:00 – 16:30</li><li class="num">19:00 – 24:00</li></ul></div>
   </div>
@@ -237,7 +250,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&family=Dela+Gothic+One&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../styles.css?v=mwp99ls4">
+<link rel="stylesheet" href="../styles.css?v=mwpmq74s">
 <script>document.documentElement.classList.add('js');<\/script>
 </head>
 <body>
@@ -245,14 +258,14 @@
 <div class="progress" data-progress aria-hidden="true"></div>
 <header class="nav" data-nav>
   <div class="container nav__in">
-    <a class="nav__brand" href="#top" aria-label="Wok Two, home">Wok Two</a>
-    <nav class="nav__links" aria-label="Main"><a class="slide" href="carta.html" data-text="Menu"><span>Menu</span></a><a class="slide" href="#destacados" data-text="Favourites"><span>Favourites</span></a><a class="slide" href="#donde" data-text="Find us"><span>Find us</span></a><a class="slide slide--lang" href="../index.html" hreflang="es" lang="es" aria-label="Versión en español"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>EN</span><span class="roll-b" aria-hidden="true">EN</span></a></nav>
+    <a class="nav__brand" href="#top" aria-label="Wok Two, home"><img class="logo" src="../logo.svg" alt="" width="40" height="40">Wok Two</a>
+    <nav class="nav__links" aria-label="Main"><a class="slide" href="carta.html" data-text="Menu"><span>Menu</span></a><a class="slide" href="#destacados" data-text="Favourites"><span>Favourites</span></a><a class="slide" href="#donde" data-text="Find us"><span>Find us</span></a><a class="slide" href="#opiniones" data-text="Reviews"><span>Reviews</span></a><a class="slide slide--lang" href="../index.html" hreflang="es" lang="es" aria-label="Versión en español"><span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>EN</span><span class="roll-b" aria-hidden="true">EN</span></a></nav>
     <a class="nav__cta" href="carta.html" data-open-cart>Order now</a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span></span><span></span><span></span><span class="visually-hidden">Menu</span></button>
   </div>
 </header>
 <div class="menu" id="menu" data-menu hidden>
-  <nav aria-label="Mobile"><a href="#top">Home</a><a href="carta.html">Menu</a><a href="#destacados">Favourites</a><a href="#donde">Find us</a><a href="carta.html" data-open-cart>Order now</a><a class="menu__lang" href="../index.html" hreflang="es" lang="es" aria-label="Versión en español"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>EN</a></nav>
+  <nav aria-label="Mobile"><a href="#top">Home</a><a href="carta.html">Menu</a><a href="#destacados">Favourites</a><a href="#donde">Find us</a><a href="#opiniones">Reviews</a><a href="carta.html" data-open-cart>Order now</a><a class="menu__lang" href="../index.html" hreflang="es" lang="es" aria-label="Versión en español"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m5 8 6 6"/><path d="m4 14 6-6 2-3"/><path d="M2 5h12"/><path d="M7 2h1"/><path d="m22 22-5-10-5 10"/><path d="M14 18h6"/></svg>EN</a></nav>
 </div>
 
 <main id="main">
@@ -326,7 +339,7 @@
   <div class="mcard__img" data-slot="dish-169258"><img src="../images/1692586255fd4d519d9fb1402cad151c-800.jpg" width="800" height="600" alt="Avocado Maki, 16 pieces" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Favourite</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Avocado Maki</h3><span class="mcard__price num">€7.50</span></div>
-    <p class="mcard__desc">16 pieces. Avocado maki. A fish-free option.</p>
+    <p class="mcard__desc">16 pieces. Avocado maki. A fish-free option.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Show description" data-hide="Hide description">Show description</button>
     <button type="button" class="mcard__btn" data-add="Maki Aguacate, 16 unidades" aria-label="Add Avocado Maki to the order">Add</button>
   </div>
 </article>
@@ -334,7 +347,7 @@
   <div class="mcard__img" data-slot="dish-a913d1"><img src="../images/a913d11fcfd0991131e583cad5535301-800.jpg" width="800" height="600" alt="Noodles with Chicken Breast" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Favourite</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Noodles with Chicken Breast</h3><span class="mcard__price num">€5.60</span></div>
-    <p class="mcard__desc">Wok noodles with strips of chicken breast.</p>
+    <p class="mcard__desc">Wok noodles with strips of chicken breast.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Show description" data-hide="Hide description">Show description</button>
     <button type="button" class="mcard__btn" data-add="Tallarines con Pechuga de Pollo" aria-label="Add Noodles with Chicken Breast to the order">Add</button>
   </div>
 </article>
@@ -342,7 +355,7 @@
   <div class="mcard__img" data-slot="dish-71c44b"><img src="../images/71c44bcdd9c775c1809aa2f60e42526d-800.jpg" width="800" height="600" alt="Set Menu 9, 18 pieces" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Favourite</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Set Menu 9</h3><span class="mcard__price num">€14.95</span></div>
-    <p class="mcard__desc">18 pieces. 4 California with onion, 4 chicken California, 4 salmon California, 2 salmon nigiri, 2 avocado maki and 2 salmon maki</p>
+    <p class="mcard__desc">18 pieces. 4 California with onion, 4 chicken California, 4 salmon California, 2 salmon nigiri, 2 avocado maki and 2 salmon maki</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Show description" data-hide="Hide description">Show description</button>
     <button type="button" class="mcard__btn" data-add="Menú 9, 18 unidades" aria-label="Add Set Menu 9 to the order">Add</button>
   </div>
 </article>
@@ -350,7 +363,7 @@
   <div class="mcard__img" data-slot="dish-138d44"><img src="../images/138d44df06003a8a858a575d1a933795-800.jpg" width="800" height="600" alt="Chicken with Almonds" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Favourite</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Chicken with Almonds</h3><span class="mcard__price num">€6.50</span></div>
-    <p class="mcard__desc">Chicken stir-fried with almonds, a Chinese classic.</p>
+    <p class="mcard__desc">Chicken stir-fried with almonds, a Chinese classic.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Show description" data-hide="Hide description">Show description</button>
     <button type="button" class="mcard__btn" data-add="Pollo con Almendras" aria-label="Add Chicken with Almonds to the order">Add</button>
   </div>
 </article>
@@ -358,7 +371,7 @@
   <div class="mcard__img" data-slot="dish-5e8629"><img src="../images/5e86294b819d60594490f6fd067881ab-800.jpg" width="800" height="600" alt="Salmon California, 9 pieces" loading="lazy" decoding="async"><span class="mcard__badge" data-keep>Favourite</span></div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">Salmon California</h3><span class="mcard__price num">€6.50</span></div>
-    <p class="mcard__desc">9 pieces. Salmon California roll.</p>
+    <p class="mcard__desc">9 pieces. Salmon California roll.</p><button type="button" class="desc-toggle" aria-expanded="false" data-show="Show description" data-hide="Hide description">Show description</button>
     <button type="button" class="mcard__btn" data-add="California Salmón, 9 unidades" aria-label="Add Salmon California to the order">Add</button>
   </div>
 </article>
@@ -398,12 +411,25 @@
       </div>
     </div>
   </section>
+
+  <section class="sec sec--white" id="opiniones" aria-labelledby="h-rev">
+    <div class="container">
+      <div class="shead reveal"><span class="label">Reviews</span><h2 class="title-xl" id="h-rev">What people say</h2></div>
+      <ul class="reviews">
+        <li class="review reveal" style="--d:0s"><div class="review__who"><img src="../images/avatar-1.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Daniel Vázquez</strong></div><p class="review__stars" role="img" aria-label="5 out of 5 stars"><span aria-hidden="true">★★★★★<i></i></span></p><blockquote class="review__text"><p>Una pareja mayor de asiáticos que hace una comida para repetir siempre. Unos tallarines (caseros por cierto) con pato con un sabor espectacular, nunca había probado algo similar.</p><p>Un sushi, que estando en el centro, baratísimo de precio y buenísimo, no encuentras otro igual calidad cantidad y precio.</p><p>Y una mujer, que con su sonrisa y su poco entendimiento de español te atiende espectacular.</p></blockquote><p class="review__from">Google Maps review</p></li>
+        <li class="review reveal" style="--d:0.1s"><div class="review__who"><img src="../images/avatar-2.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Maria Sanchez carrillo</strong></div><p class="review__stars" role="img" aria-label="4 out of 5 stars"><span aria-hidden="true">★★★★<i>★</i></span></p><blockquote class="review__text"><p>You get great food for a decent cost! I would advise that the noodles are better (daily fresh and tasty) than the rice. The sushi is also not bad, especially the tempura shrimp one.</p><p>There is a friendly lady taking the orders and they will provide packaging without hesitation if you can't finish your meal.</p><p>The noodles could be too oily for some, but the flavours are deep!</p></blockquote><p class="review__from">Google Maps review</p></li>
+        <li class="review reveal" style="--d:0.2s"><div class="review__who"><img src="../images/avatar-3.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Camilo Vanderhuck</strong></div><p class="review__stars" role="img" aria-label="5 out of 5 stars"><span aria-hidden="true">★★★★★<i></i></span></p><blockquote class="review__text"><p>Pedimos a domicilio por primera vez y llegó bastante rápido.</p><p>Los tallarines están riquísimos, el de pato especialmente. El arroz también muy rico.</p><p>Vienen buenas cantidades y a muy buena temperatura.</p><p>La verdad es que repetiremos.</p></blockquote><p class="review__from">Google Maps review</p></li>
+        <li class="review reveal" style="--d:0.30000000000000004s"><div class="review__who"><img src="../images/avatar-4.png" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>Reichel Mora</strong></div><p class="review__stars" role="img" aria-label="5 out of 5 stars"><span aria-hidden="true">★★★★★<i></i></span></p><blockquote class="review__text"><p>Se come genial por un muy buen precio. Tienen menús de sushi muy variados de distintas cantidades. Los tallarines están buenísimos y vienen raciones muy grandes por el bajo precio que tienen. La dueña es super simpática y ofrece un excelente servicio.</p></blockquote><p class="review__from">Google Maps review</p></li>
+      </ul>
+      <p class="reviews__all"><a class="btn-white" href="https://www.google.com/maps/search/?api=1&query=Wok%20Two%2C%20Calle%20Cuarteles%2015%2C%2029002%20M%C3%A1laga" rel="noopener"><span>See all on Google Maps</span><svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg></a></p>
+    </div>
+  </section>
 </main>
 
 <footer class="foot">
   <div class="container foot__grid">
-    <div class="foot__brand"><a class="foot__logo" href="#top">Wok Two</a><p>Sushi, maki, noodles and rice on Calle Cuarteles. Authentic flavour in Málaga. Delivery or pickup.</p></div>
-    <div class="foot__col"><h2>Navigation</h2><ul><li><a href="carta.html">Menu</a></li><li><a href="#destacados">Favourites</a></li><li><a href="#donde">Find us</a></li></ul></div>
+    <div class="foot__brand"><a class="foot__logo" href="#top"><img class="logo" src="../logo.svg" alt="" width="44" height="44">Wok Two</a><p>Sushi, maki, noodles and rice on Calle Cuarteles. Authentic flavour in Málaga. Delivery or pickup.</p></div>
+    <div class="foot__col"><h2>Navigation</h2><ul><li><a href="carta.html">Menu</a></li><li><a href="#destacados">Favourites</a></li><li><a href="#donde">Find us</a></li><li><a href="#opiniones">Reviews</a></li></ul></div>
     <div class="foot__col"><h2>Contact</h2><ul><li><a href="https://www.google.com/maps/search/?api=1&query=Wok%20Two%2C%20Calle%20Cuarteles%2015%2C%2029002%20M%C3%A1laga" rel="noopener">C/ Cuarteles, 15</a></li><li><a href="https://www.google.com/maps/search/?api=1&query=Wok%20Two%2C%20Calle%20Cuarteles%2015%2C%2029002%20M%C3%A1laga" rel="noopener">29002 Málaga</a></li><li><a href="carta.html" data-open-cart>Order now</a></li></ul></div>
     <div class="foot__col"><h2>Opening hours</h2><ul><li>Every day</li><li class="num">12:00 – 16:30</li><li class="num">19:00 – 24:00</li></ul></div>
   </div>
@@ -430,14 +456,14 @@
   </form>
 </dialog>
 <script type="application/json" id="catalog">[["Menú 1, 12 unidades","Set Menu 1, 12 pieces",12],["Menú 2, 9 unidades","Set Menu 2, 9 pieces",9.95],["Menú 3, 11 unidades","Set Menu 3, 11 pieces",10.5],["Menú 4, 11 unidades","Set Menu 4, 11 pieces",11.5],["Menú 5, 16 unidades","Set Menu 5, 16 pieces",13.95],["Menú 6, 18 unidades","Set Menu 6, 18 pieces",13.95],["Menú 7, 18 unidades","Set Menu 7, 18 pieces",14.95],["Menú 8, 18 unidades","Set Menu 8, 18 pieces",15.5],["Menú 9, 18 unidades","Set Menu 9, 18 pieces",14.95],["Menú 10, 12 unidades","Set Menu 10, 12 pieces",11.5],["Menú 11, 40 unidades","Set Menu 11, 40 pieces",32],["Menú 12, 18 unidades","Set Menu 12, 18 pieces",14.5],["Menú 13, 20 unidades","Set Menu 13, 20 pieces",14.2],["Plato Grande, 56 unidades","Large Platter, 56 pieces",39],["Ensalada de Pepino","Cucumber Salad",3.2],["Rollitos Primavera","Spring Rolls",2.3],["Empanadillas Chinas","Chinese Dumplings",3.5],["Alitas de Pollo, 3 piezas","Chicken Wings, 3 pieces",4.5],["Pan de Gambas","Prawn Crackers",1.5],["Rainbow Roll, 9 unidades","Rainbow Roll, 9 pieces",9.9],["Nigiri de Anguila, 2 piezas","Eel Nigiri, 2 pieces",3.2],["Nigiri de Langostino, 2 piezas","Prawn Nigiri, 2 pieces",3.2],["Nigiri de Atún, 2 piezas","Tuna Nigiri, 2 pieces",3.2],["Nigiri de Salmón, 2 piezas","Salmon Nigiri, 2 pieces",3.2],["Nigiri de Salmón, 6 unidades","Salmon Nigiri, 6 pieces",7.8],["Maki Variado, 16 unidades","Assorted Maki, 16 pieces",7.5],["Maki Salmón, 16 unidades","Salmon Maki, 16 pieces",7.8],["Maki Aguacate, 16 unidades","Avocado Maki, 16 pieces",7.5],["Maki Variado, 8 unidades","Assorted Maki, 8 pieces",4],["Maki Salmón, 8 unidades","Salmon Maki, 8 pieces",4],["Maki Aguacate, 8 unidades","Avocado Maki, 8 pieces",4],["Maki de Salmón, 2 unidades","Salmon Maki, 2 pieces",1.5],["Maki de Atún, 2 unidades","Tuna Maki, 2 pieces",1.5],["Maki de Gambas, 2 unidades","Prawn Maki, 2 pieces",1.5],["Maki de Aguacate, 2 unidades","Avocado Maki, 2 pieces",1.5],["Futo Maki, 5 unidades","Futo Maki, 5 pieces",6],["Tallarines con Huevo y Verduras, pequeño","Noodles with Egg and Vegetables, small",3.4],["Tallarines con Huevo y Verduras, grande","Noodles with Egg and Vegetables, large",3.9],["Fideos con Verduras","Vermicelli with Vegetables",5],["Tallarines con Pechuga de Pollo","Noodles with Chicken Breast",5.6],["Tallarines con Pato","Noodles with Duck",6.5],["Fideos con Langostino","Vermicelli with Prawns",6.5],["Tallarines con Marisco","Noodles with Seafood",6.2],["Tallarines con Muslo de Pollo","Noodles with Chicken Thigh",6],["Fideos Frito con Ternera","Fried Vermicelli with Beef",7.5],["Fideos Frito con Pollo","Fried Vermicelli with Chicken",7],["Tallarines Fritos con Ternera","Fried Noodles with Beef",7.5],["Tallarines Frito con Pollo","Fried Noodles with Chicken",6.8],["Arroz Frito Tres Delicias, pequeño","Three Delights Fried Rice, small",3.4],["Arroz Frito Tres Delicias, grande","Three Delights Fried Rice, large",3.9],["Arroz Frito con Verduras","Vegetable Fried Rice",3.95],["Arroz Frito con Pollo","Chicken Fried Rice",5.2],["Arroz Bulgogi Blanco con Ternera","White Rice with Beef Bulgogi",6.5],["Arroz Frito con Pollo Curry al Estilo Tailandés","Thai-Style Chicken Curry Fried Rice",6.5],["Arroz Frito con Marisco","Seafood Fried Rice",6.2],["Arroz Frito con Ternera","Beef Fried Rice",6.9],["Arroz Frito Estilo Tailandés","Thai-Style Fried Rice",6.5],["Arroz Frito Estilo Cantonés","Cantonese-Style Fried Rice",6.8],["Solomillo de Pollo","Chicken Tenderloin",3.95],["Pollo con Almendras","Chicken with Almonds",6.5],["Langostino Frito, 10 piezas","Fried Prawns, 10 pieces",5],["Tempura de Langostinos Roll, 8 unidades","Prawn Tempura Roll, 8 pieces",5.9],["California con Cebolla, 9 unidades","California with Onion, 9 pieces",5.9],["Ternera con Bambú y Setas Chinas","Beef with Bamboo and Chinese Mushrooms",7],["Salmón Rollo con Queso, 9 unidades","Salmon and Cheese Roll, 9 pieces",7.5],["California Salmón, 9 unidades","Salmon California, 9 pieces",6.5],["California Pollo, 9 unidades","Chicken California, 9 pieces",6.95],["California Wakame, 9 unidades","Wakame California, 9 pieces",6.9],["Spicy California, 9 unidades","Spicy California, 9 pieces",5.9],["Salmón Uramaki, 9 unidades","Salmon Uramaki, 9 pieces",8.8],["Ternera con Salsa Ostras","Beef in Oyster Sauce",7],["California Wakame, 12 unidades","Wakame California, 12 pieces",9],["Avocado Roll, 9 unidades","Avocado Roll, 9 pieces",8.2],["Temaki, 1 unidad","Temaki, 1 piece",4.5],["Tartar","Tartare",8.2],["Patatas y Solomillo de Pollo con Salsa","Potatoes and Chicken Tenderloin with Sauce",4.5],["Patatas Lux","Lux Potato Wedges",3.8],["Patatas y Huevo con Salsa","Potatoes and Egg with Sauce",4.2],["Coca Cola Sabor Original, lata 330 ml","Coca-Cola Original Taste, 330 ml can",2.8],["Monster Energy Original, lata 500 ml","Monster Energy Original, 500 ml can",3],["Fanta Naranja, lata 330 ml","Fanta Orange, 330 ml can",2.8],["Sprite, lata 330 ml","Sprite, 330 ml can",2.8],["Agua, botella","Water, bottle",1.5],["Cerveza","Beer",2.8]]<\/script>
-<script src="../app.js?v=mwp99ls4"><\/script>
-<script src="../cart.js?v=mwp99ls4"><\/script>
+<script src="../app.js?v=mwpmq74s"><\/script>
+<script src="../cart.js?v=mwpmq74s"><\/script>
 <script>document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });<\/script>
 </body>
 </html>
 </script>
-<script src="app.js?v=mwp99ls4"></script>
-<script src="cart.js?v=mwp99ls4"></script>
+<script src="app.js?v=mwpmq74s"></script>
+<script src="cart.js?v=mwpmq74s"></script>
 <script>document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
 </body>
 </html>

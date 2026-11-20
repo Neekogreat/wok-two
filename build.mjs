@@ -30,16 +30,28 @@ const isDest = new Set(destacados);
 // Catálogo para el carrito: [nombre en español, nombre en inglés, precio]; el número del plato es su posición.
 const catalog = all.map((it) => [it[0], EN.nameEn(it[0]), it[2]]);
 
+// Reseñas reales de Google Maps, copiadas tal cual (cada una en su idioma original): [estrellas, texto]. Los párrafos se separan con |.
+const reviews = [
+  [5, 'Una pareja mayor de asiáticos que hace una comida para repetir siempre. Unos tallarines (caseros por cierto) con pato con un sabor espectacular, nunca había probado algo similar.|Un sushi, que estando en el centro, baratísimo de precio y buenísimo, no encuentras otro igual calidad cantidad y precio.|Y una mujer, que con su sonrisa y su poco entendimiento de español te atiende espectacular.'],
+  [4, "You get great food for a decent cost! I would advise that the noodles are better (daily fresh and tasty) than the rice. The sushi is also not bad, especially the tempura shrimp one.|There is a friendly lady taking the orders and they will provide packaging without hesitation if you can't finish your meal.|The noodles could be too oily for some, but the flavours are deep!"],
+  [5, 'Pedimos a domicilio por primera vez y llegó bastante rápido.|Los tallarines están riquísimos, el de pato especialmente. El arroz también muy rico.|Vienen buenas cantidades y a muy buena temperatura.|La verdad es que repetiremos.'],
+  [5, 'Se come genial por un muy buen precio. Tienen menús de sushi muy variados de distintas cantidades. Los tallarines están buenísimos y vienen raciones muy grandes por el bajo precio que tienen. La dueña es super simpática y ofrece un excelente servicio.'],
+];
+
+// Quién escribió cada reseña (mismo orden que arriba): [nombre, foto de perfil].
+const reviewers = [['Daniel Vázquez', 'avatar-1.png'], ['Maria Sanchez carrillo', 'avatar-2.png'], ['Camilo Vanderhuck', 'avatar-3.png'], ['Reichel Mora', 'avatar-4.png']];
+
 // Textos de cada idioma.
 const L = {
   es: {
     eur: (n) => n.toFixed(2).replace('.', ',') + ' €', // espacio que no se parte: el € nunca baja solo a otra línea
     name: (s) => s, tdesc: (s) => s, cat: (c) => c.label, note: (c) => c.note,
+    showDesc: 'Ver descripción', hideDesc: 'Ocultar descripción',
     other: 'EN', otherLang: 'en', otherLabel: 'English version',
     title: 'Wok Two, sushi y wok en Málaga', cartaTitle: 'Carta · Wok Two, sushi y wok en Málaga',
     desc: 'Wok Two, calle Cuarteles 15, Málaga. Sushi, makis, fideos y arroces a domicilio o para recoger. Abierto todos los días, comidas y cenas.',
     cartaDesc: `La carta completa de Wok Two: ${total} platos de sushi, makis, fideos, arroces y más, con precios. Pide para recoger.`,
-    skip: 'Ir al contenido', home: 'Inicio', carta: 'Carta', dest: 'Destacados', where: 'Dónde', order: 'Pide ahora', menuBtn: 'Menú', mobileNav: 'Móvil', mainNav: 'Principal',
+    skip: 'Ir al contenido', home: 'Inicio', carta: 'Carta', dest: 'Destacados', where: 'Dónde', revNav: 'Opiniones', order: 'Pide ahora', menuBtn: 'Menú', mobileNav: 'Móvil', mainNav: 'Principal',
     heroLabel: 'Portada', slides: 'Diapositivas', slide: 'Diapositiva',
     chip1: 'Málaga • Sushi &amp; Wok', tag1: 'Sushi, makis, fideos y arroces', cta1: 'Ver la carta',
     chip2: '★ Abierto todos los días', title2: (p) => `Menús de sushi desde ${p}`, tag2: 'Nigiris • Makis • Californias • Wok',
@@ -53,6 +65,7 @@ const L = {
     cartFab: 'Mi pedido', cartTitle: 'Tu pedido', cartClose: 'Cerrar', cartEmpty: 'Todavía no has añadido nada.', cartEmptyBtn: 'Ver la carta', cartTotal: 'Total', cartClear: 'Vaciar pedido',
     pickupInfo: 'Pedido para recoger en Calle Cuarteles 15, Málaga. Pagas en el local al recoger.', fName: 'Nombre', fPhone: 'Teléfono', fTime: 'Hora de recogida', fNotes: 'Notas (opcional)', fNotesPh: 'Alergias, sin cebolla…', send: 'Enviar pedido por WhatsApp',
     delLabel: 'A domicilio', delTitle: 'Pide desde casa', delSub: 'Te lo llevamos por Málaga, del 29001 al 29018 y al 29190. O pide y pasa a recogerlo.', pickup: 'Pasar a recoger',
+    revLabel: 'Opiniones', revTitle: 'Lo que dicen de nosotros', revAll: 'Ver todas en Google Maps', revFrom: 'Reseña de Google Maps', stars: (n) => n + ' de 5 estrellas',
     findTitle: 'Encuéntranos en Málaga', mapTitle: 'Mapa: Wok Two en la calle Cuarteles 15, Málaga', address: 'Dirección', addr: 'Calle Cuarteles, 15<br>29002 Málaga, España',
     hours: 'Horario', lunch: 'Comidas · todos los días', dinner: 'Cenas · todos los días', now: 'Ahora', statusDefault: 'Abierto todos los días, de 12:00 a 16:30 y de 19:00 a 24:00.', directions: 'Cómo llegar',
     footBlurb: 'Sushi, makis, fideos y arroces en la calle Cuarteles. Sabor auténtico en Málaga. A domicilio o para recoger.', nav: 'Navegación', contact: 'Contacto', everyDay: 'Todos los días', rights: 'Todos los derechos reservados.', visit: 'Visítanos',
@@ -61,11 +74,12 @@ const L = {
   en: {
     eur: (n) => '€' + n.toFixed(2),
     name: EN.nameEn, tdesc: (s) => EN.descs[s] ?? s, cat: (c) => EN.cats[c.id] ?? c.label, note: (c) => EN.notes[c.id] ?? c.note,
+    showDesc: 'Show description', hideDesc: 'Hide description',
     other: 'ES', otherLang: 'es', otherLabel: 'Versión en español',
     title: 'Wok Two, sushi and wok in Málaga', cartaTitle: 'Menu · Wok Two, sushi and wok in Málaga',
     desc: 'Wok Two, Calle Cuarteles 15, Málaga. Sushi, maki, noodles and rice for delivery or pickup. Open every day, lunch and dinner.',
     cartaDesc: `The full Wok Two menu: ${total} dishes of sushi, maki, noodles, rice and more, with prices. Order for pickup.`,
-    skip: 'Skip to content', home: 'Home', carta: 'Menu', dest: 'Favourites', where: 'Find us', order: 'Order now', menuBtn: 'Menu', mobileNav: 'Mobile', mainNav: 'Main',
+    skip: 'Skip to content', home: 'Home', carta: 'Menu', dest: 'Favourites', where: 'Find us', revNav: 'Reviews', order: 'Order now', menuBtn: 'Menu', mobileNav: 'Mobile', mainNav: 'Main',
     heroLabel: 'Welcome', slides: 'Slides', slide: 'Slide',
     chip1: 'Málaga • Sushi &amp; Wok', tag1: 'Sushi, maki, noodles and rice', cta1: 'See the menu',
     chip2: '★ Open every day', title2: (p) => `Sushi set menus from ${p}`, tag2: 'Nigiri • Maki • California • Wok',
@@ -79,6 +93,7 @@ const L = {
     cartFab: 'My order', cartTitle: 'Your order', cartClose: 'Close', cartEmpty: 'You have not added anything yet.', cartEmptyBtn: 'See the menu', cartTotal: 'Total', cartClear: 'Clear order',
     pickupInfo: 'Pickup order at Calle Cuarteles 15, Málaga. You pay at the restaurant when you collect it.', fName: 'Name', fPhone: 'Phone', fTime: 'Pickup time', fNotes: 'Notes (optional)', fNotesPh: 'Allergies, no onion…', send: 'Send order by WhatsApp',
     delLabel: 'Delivery', delTitle: 'Order from home', delSub: 'We deliver across Málaga, postcodes 29001 to 29018 and 29190. Or order and pick it up.', pickup: 'Pick up',
+    revLabel: 'Reviews', revTitle: 'What people say', revAll: 'See all on Google Maps', revFrom: 'Google Maps review', stars: (n) => n + ' out of 5 stars',
     findTitle: 'Find us in Málaga', mapTitle: 'Map: Wok Two at Calle Cuarteles 15, Málaga', address: 'Address', addr: 'Calle Cuarteles, 15<br>29002 Málaga, Spain',
     hours: 'Opening hours', lunch: 'Lunch · every day', dinner: 'Dinner · every day', now: 'Now', statusDefault: 'Open every day, 12:00 to 16:30 and 19:00 to 24:00.', directions: 'Get directions',
     footBlurb: 'Sushi, maki, noodles and rice on Calle Cuarteles. Authentic flavour in Málaga. Delivery or pickup.', nav: 'Navigation', contact: 'Contact', everyDay: 'Every day', rights: 'All rights reserved.', visit: 'Visit us',
@@ -144,11 +159,11 @@ const build = (lang) => {
 <script>document.documentElement.classList.add('js');</script>
 </head>`;
 
-  const navItems = (home) => [[home ? '#top' : 'index.html', t.home], ['carta.html', t.carta], [home ? '#destacados' : 'index.html#destacados', t.dest], [home ? '#donde' : 'index.html#donde', t.where]];
+  const navItems = (home) => [[home ? '#top' : 'index.html', t.home], ['carta.html', t.carta], [home ? '#destacados' : 'index.html#destacados', t.dest], [home ? '#donde' : 'index.html#donde', t.where], [home ? '#opiniones' : 'index.html#opiniones', t.revNav]];
   const header = (home, page) => `<div class="progress" data-progress aria-hidden="true"></div>
 <header class="nav" data-nav>
   <div class="container nav__in">
-    <a class="nav__brand" href="${home ? '#top' : 'index.html'}" aria-label="Wok Two, ${t.home.toLowerCase()}">Wok Two</a>
+    <a class="nav__brand" href="${home ? '#top' : 'index.html'}" aria-label="Wok Two, ${t.home.toLowerCase()}"><img class="logo" src="${P}logo.svg" alt="" width="40" height="40">Wok Two</a>
     <nav class="nav__links" aria-label="${t.mainNav}">${navItems(home).slice(1).map(([h, x]) => `<a class="slide" href="${h}" data-text="${x}"><span>${x}</span></a>`).join('')}<a class="slide slide--lang" href="${OTHER}${page}" hreflang="${t.otherLang}" lang="${t.otherLang}" aria-label="${t.otherLabel}"><span>${LANG_ICON}${lang.toUpperCase()}</span><span class="roll-b" aria-hidden="true">${lang.toUpperCase()}</span></a></nav>
     <a class="nav__cta" href="${home ? 'carta.html' : 'carta.html'}" data-open-cart>${t.order}</a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span></span><span></span><span></span><span class="visually-hidden">${t.menuBtn}</span></button>
@@ -160,7 +175,7 @@ const build = (lang) => {
 
   const footer = (home) => `<footer class="foot">
   <div class="container foot__grid">
-    <div class="foot__brand"><a class="foot__logo" href="${home ? '#top' : 'index.html'}">Wok Two</a><p>${t.footBlurb}</p></div>
+    <div class="foot__brand"><a class="foot__logo" href="${home ? '#top' : 'index.html'}"><img class="logo" src="${P}logo.svg" alt="" width="44" height="44">Wok Two</a><p>${t.footBlurb}</p></div>
     <div class="foot__col"><h2>${t.nav}</h2><ul>${navItems(home).slice(1).map(([h, x]) => `<li><a href="${h}">${x}</a></li>`).join('')}</ul></div>
     <div class="foot__col"><h2>${t.contact}</h2><ul><li><a href="${MAPS}" rel="noopener">C/ Cuarteles, 15</a></li><li><a href="${MAPS}" rel="noopener">29002 Málaga</a></li><li><a href="carta.html" data-open-cart>${t.order}</a></li></ul></div>
     <div class="foot__col"><h2>${t.hours}</h2><ul><li>${t.everyDay}</li><li class="num">12:00 – 16:30</li><li class="num">19:00 – 24:00</li></ul></div>
@@ -198,13 +213,15 @@ const build = (lang) => {
 </html>
 `;
 
+  const descToggle = `<button type="button" class="desc-toggle" aria-expanded="false" data-show="${t.showDesc}" data-hide="${t.hideDesc}">${t.showDesc}</button>`;
+
   // Tarjeta de plato (la misma en el carrusel de destacados y en la carta).
   const card = (it, { badge = isDest.has(it[0]) } = {}) => { const [name, detail] = nm(it[0]);
     return `<article class="mcard">
   <div class="mcard__img" data-slot="dish-${it[3].slice(0, 6)}"><img src="${img(it[3], 800)}" width="800" height="600" alt="${esc(name)}${detail ? ', ' + esc(detail) : ''}" loading="lazy" decoding="async">${badge ? `<span class="mcard__badge" data-keep>${t.badge}</span>` : ''}</div>
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">${esc(name)}</h3><span class="mcard__price num">${t.eur(it[2])}</span></div>
-    <p class="mcard__desc">${esc([detail, it[1] && t.tdesc(it[1])].filter(Boolean).join('. '))}</p>
+    ${(()=>{const d=[detail, it[1] && t.tdesc(it[1])].filter(Boolean).join('. ');return d?`<p class="mcard__desc">${esc(d)}</p>${descToggle}`:'';})()}
     <button type="button" class="mcard__btn" data-add="${esc(it[0])}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button>
   </div>
 </article>`; };
@@ -318,6 +335,16 @@ ${header(true, 'index.html')}
       </div>
     </div>
   </section>
+
+  <section class="sec sec--white" id="opiniones" aria-labelledby="h-rev">
+    <div class="container">
+      <div class="shead reveal"><span class="label">${t.revLabel}</span><h2 class="title-xl" id="h-rev">${t.revTitle}</h2></div>
+      <ul class="reviews">
+        ${reviews.map(([n, txt], i) => `<li class="review reveal" style="--d:${i * 0.1}s"><div class="review__who"><img src="${P}images/${reviewers[i][1]}" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>${esc(reviewers[i][0])}</strong></div><p class="review__stars" role="img" aria-label="${t.stars(n)}"><span aria-hidden="true">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span></p><blockquote class="review__text">${txt.split('|').map((p) => `<p>${esc(p)}</p>`).join('')}</blockquote><p class="review__from">${t.revFrom}</p></li>`).join('\n        ')}
+      </ul>
+      <p class="reviews__all"><a class="btn-white" href="${MAPS}" rel="noopener"><span>${t.revAll}</span>${ARROW}</a></p>
+    </div>
+  </section>
 </main>
 
 ${footer(true)}
@@ -326,7 +353,7 @@ ${scripts}`;
   // ============ Carta ============
   const tabs = menu.map((c, i) => `<a href="#c-${c.id}" class="cat" data-cat="${c.id}"${i === 0 ? ' aria-current="true"' : ''}>${t.cat(c)}</a>`).join('\n        ');
   const row = (it) => { const [name, detail] = nm(it[0]); const d = [detail, it[1] && t.tdesc(it[1])].filter(Boolean).join('. ');
-    return `<li class="row"><div class="row__main"><span class="row__name">${esc(name)}</span>${d ? `<span class="row__desc">${esc(d)}</span>` : ''}</div><span class="row__price num">${t.eur(it[2])}</span><button type="button" class="row__add" data-add="${esc(it[0])}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button></li>`; };
+    return `<li class="row"><div class="row__main"><span class="row__name">${esc(name)}</span>${d ? `<span class="row__desc">${esc(d)}</span>${descToggle}` : ''}</div><span class="row__price num">${t.eur(it[2])}</span><button type="button" class="row__add" data-add="${esc(it[0])}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button></li>`; };
   const panels = menu.map((c, i) => {
     const withPic = c.items.filter((i) => i[3]); const noPic = c.items.filter((i) => !i[3]); const note = t.note(c);
     return `<section class="panel${i === 0 ? ' is-open' : ''}" id="c-${c.id}" data-panel="${c.id}">

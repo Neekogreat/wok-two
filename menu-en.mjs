@@ -100,7 +100,7 @@ export const descs = {
   "Agua mineral.": "Mineral water.",
   "Cerveza fría para acompañar.": "A cold beer to go with your food.",
   '6 nigiris de salmón y 6 maki california salmón': '6 salmon nigiri and 6 salmon California maki',
-  '3 nigiris de salmón, 2 nigiri de atún, niguiri de anguila y 3 california salmón': '3 salmon nigiri, 2 tuna nigiri, eel nigiri and 3 salmon California',
+  '3 nigiri de salmón, 2 nigiri de atún, nigiri de anguila y 3 california salmón': '3 salmon nigiri, 2 tuna nigiri, eel nigiri and 3 salmon California',
   '8 nigiris de salmón y 3 makis variados': '8 salmon nigiri and 3 assorted maki',
   '4 nigiris de salmón, 4 nigiris de atún y 3 makis variados': '4 salmon nigiri, 4 tuna nigiri and 3 assorted maki',
   '2 nigiris de salmón, 2 nigiris de atún, 2 makis de salmón, 2 makis de atún, 2 langostinos y 2 anguilas': '2 salmon nigiri, 2 tuna nigiri, 2 salmon maki, 2 tuna maki, 2 prawn and 2 eel',

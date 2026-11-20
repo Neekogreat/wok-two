@@ -107,7 +107,8 @@ body:has(.menu.is-open) .visit { display: none; }
 .hl--wide { display: none; }
 @keyframes hl-sway { 0%, 100% { transform: rotate(calc(var(--r) * -1)); } 50% { transform: rotate(var(--r)); } }
 @media (min-width: 64rem) { .hl--wide { display: block; } }
-@media (max-width: 40rem) { .hl { top: calc(var(--y) * 0.55); } .hl::before { top: calc(var(--y) * -0.55); height: calc(var(--y) * 0.55); } .hl { transform-origin: 50% calc(var(--y) * -0.55); } }
+/* En móvil la barra superior (81 px) tapaba los farolillos más altos: se bajan 40 px y el cordón se alarga lo mismo */
+@media (max-width: 40rem) { .hl { --ym: calc(var(--y) * 0.55 + 40px); top: var(--ym); } .hl::before { top: calc(var(--ym) * -1); height: var(--ym); } .hl { transform-origin: 50% calc(var(--ym) * -1); } }
 @keyframes marquee-down { from { transform: translateY(-50%); } to { transform: translateY(0); } }
 .hero__in { position: relative; z-index: 10; max-width: 1024px; padding-inline: 24px; text-align: center; }
 .hero__in > * { animation: fade-up 0.8s var(--expo) both; }
@@ -281,7 +282,7 @@ body:has(.menu.is-open) .visit { display: none; }
 .cat { position: relative; flex: none; padding: 18px 36px; border: 3px solid rgb(255 255 255 / 0.12); font-family: var(--display); font-size: 20px; letter-spacing: 2px; line-height: 1; text-transform: uppercase; text-decoration: none; white-space: nowrap; color: var(--white); transition: all 0.4s var(--std); }
 .cat:hover { border-color: var(--red); }
 .cat[aria-selected="true"], .cat[aria-current="true"] { border-color: var(--red); background: var(--red); box-shadow: 4px 4px 0 var(--red-dark); }
-.panels { padding-block: 64px; }
+.panels { padding-block: 64px 32px; }
 .panel { min-width: 0; }
 .panel + .panel { margin-top: 96px; }
 .panel__title { margin-bottom: 24px; font-size: clamp(40px, 6vw, 72px); letter-spacing: 2px; color: var(--white); }
@@ -399,4 +400,86 @@ body:has(dialog[open]) { overflow: hidden; }
   .row__main { grid-column: 1 / -1; }
   .row__price { width: auto; min-width: 104px; padding-inline: 14px; }
   .row__add { width: 100%; }
+}
+
+/* Descripción plegable en móvil: el botón solo existe en pantallas estrechas */
+.desc-toggle { display: none; }
+@media (max-width: 40rem) {
+  .desc-toggle { display: inline-block; justify-self: start; margin: 0 0 12px; padding: 4px 0; border: 0; background: none; font: inherit; font-size: 14px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; text-decoration: underline; text-underline-offset: 3px; color: var(--red); cursor: pointer; }
+  .mcard__desc, .row__desc { display: none; }
+  .is-open > .mcard__desc { display: block; }
+  .mcard__body > .desc-toggle { align-self: flex-start; }
+  .row__main.is-open > .row__desc { display: block; }
+}
+
+/* Carta en móvil: cada categoría es una fila que se desliza de izquierda a derecha, con la foto entera arriba */
+@media (max-width: 40rem) {
+  .grid { display: flex; gap: 16px; margin-inline: -24px; padding: 0 24px 14px; scroll-padding-inline: 24px; overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  .grid .mcard { flex: 0 0 78%; scroll-snap-align: center; }
+  .grid .mcard__img { height: auto; aspect-ratio: 4 / 3; }
+}
+
+/* Foto ampliada */
+.mcard__img > img { cursor: zoom-in; }
+.zoom { max-width: 100vw; max-height: 100dvh; width: 100%; height: 100%; padding: 16px; border: 0; background: rgb(0 0 0 / 0.9); }
+.zoom[open] { display: flex; align-items: center; justify-content: center; }
+.zoom > img { max-width: 100%; max-height: 100%; object-fit: contain; border: 4px solid var(--cream); }
+.zoom__x { position: absolute; top: 12px; right: 12px; width: 44px; height: 44px; border: 3px solid var(--cream); background: var(--red); font-size: 28px; line-height: 1; color: var(--white); cursor: pointer; }
+
+/* Footer compacto en móvil */
+@media (max-width: 40rem) {
+  .foot { padding: 40px 0 24px; }
+  .foot__grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 20px; }
+  .foot__brand, .foot__col:nth-child(3) { grid-column: 1 / -1; }
+  .foot__col:nth-child(3) { order: 2; }
+  .foot__logo { margin-bottom: 12px; font-size: 30px; }
+  .foot__brand p { line-height: 1.6; font-size: 15px; }
+  .foot__col h2 { margin-bottom: 12px; font-size: 18px; }
+  .foot__col ul { gap: 8px; font-size: 15px; }
+  .foot__base p { margin-top: 28px; padding-top: 20px; }
+}
+
+/* Logo (sello con wok y palillos) junto al nombre */
+.nav__brand, .foot__logo { display: inline-flex; align-items: center; gap: 10px; }
+.nav__brand .logo { width: 1.05em; height: 1.05em; flex: none; }
+.foot__logo .logo { width: 1.2em; height: 1.2em; flex: none; }
+
+/* Opiniones (reseñas reales de Google Maps) */
+.reviews { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); gap: 32px 24px; margin: 0; padding: 0 6px 6px 0; list-style: none; }
+.review { display: flex; flex-direction: column; gap: 16px; padding: 28px; border: 4px solid var(--black); background: var(--white); box-shadow: var(--sh); color: var(--black); }
+.review__stars { margin: 0; font-size: 24px; line-height: 1; letter-spacing: 3px; color: var(--red); }
+.review__stars i { font-style: normal; color: var(--grey-line); }
+.review__text { flex: 1; display: grid; gap: 10px; margin: 0; font-size: 16px; line-height: 1.6; }
+.review__text p { margin: 0; }
+.review__from { margin: 0; padding-top: 14px; border-top: 2px solid rgb(0 0 0 / 0.1); font-weight: 800; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: var(--gray-500); }
+.reviews__all { margin-top: 56px; text-align: center; }
+.reviews__all .btn-white { background: var(--black); color: var(--white); }
+.reviews__all .btn-white:hover, .reviews__all .btn-white:focus-visible { background: var(--red); }
+@media (max-width: 40rem) { .review { padding: 20px; border-width: 3px; box-shadow: var(--sh-sm); } .reviews__all { margin-top: 40px; } }
+.review__who { display: flex; align-items: center; gap: 12px; }
+.review__who img { width: 48px; height: 48px; flex: none; border-radius: 50%; object-fit: cover; border: 2px solid var(--black); }
+.review__who strong { font-size: 17px; line-height: 1.2; }
+
+/* Hover de las reseñas: la tarjeta se "pulsa" como el resto de tarjetas de la web */
+.js .review.reveal { transition: opacity 0.8s var(--expo) var(--d, 0s), transform 0.5s var(--expo), box-shadow 0.5s var(--expo); }
+.review__who img, .review__who strong { transition: all 0.3s var(--expo); }
+@media (hover: hover) {
+  .js .review.reveal.visible:hover, .review:hover { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--red); }
+  .review:hover .review__who img { transform: scale(1.1); border-color: var(--red); }
+  .review:hover .review__who strong { color: var(--red); }
+}
+
+/* Móvil: el botón "Cómo llegar" va centrado */
+@media (max-width: 40rem) { .find__info .btn-white { display: flex; width: fit-content; margin-inline: auto; } }
+
+/* Móvil: las opiniones se deslizan de izquierda a derecha */
+@media (max-width: 40rem) {
+  .reviews { display: flex; gap: 16px; margin-inline: -24px; padding: 0 24px 14px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-padding-inline: 24px; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch; }
+  .review { flex: 0 0 84%; scroll-snap-align: center; }
+}
+
+/* Sin barra de desplazamiento visible en las filas que se deslizan (se sigue pudiendo deslizar) */
+@media (max-width: 40rem) {
+  .reviews, .grid { scrollbar-width: none; }
+  .reviews::-webkit-scrollbar, .grid::-webkit-scrollbar { display: none; }
 }

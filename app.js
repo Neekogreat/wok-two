@@ -73,6 +73,27 @@ const boot = (instant = false) => {
   const ask = () => { if (!queued) { queued = true; requestAnimationFrame(onFrame); } };
   addEventListener('scroll', ask, { passive: true, signal: ctl.signal }); addEventListener('resize', ask, sig); onFrame();
 
+  // --- Foto del plato: al pulsarla se abre grande; se cierra pulsando en cualquier sitio o con Escape ---
+  let zoom;
+  document.addEventListener('click', (e) => {
+    const im = e.target.closest && e.target.closest('.mcard__img > img'); if (!im) return;
+    if (!zoom) {
+      zoom = document.createElement('dialog'); zoom.className = 'zoom';
+      zoom.innerHTML = '<img alt=""><button type="button" class="zoom__x" aria-label="' + (document.documentElement.lang === 'en' ? 'Close' : 'Cerrar') + '">×</button>';
+      zoom.addEventListener('click', () => zoom.close());
+      document.body.append(zoom);
+    }
+    const z = zoom.querySelector('img'); z.src = im.currentSrc || im.src; z.alt = im.alt;
+    zoom.showModal();
+  }, sig);
+
+  // --- Móvil: la descripción de cada plato se muestra al pulsar el botón ---
+  document.addEventListener('click', (e) => {
+    const b = e.target.closest && e.target.closest('.desc-toggle'); if (!b) return;
+    const open = b.parentElement.classList.toggle('is-open');
+    b.setAttribute('aria-expanded', open); b.textContent = open ? b.dataset.hide : b.dataset.show;
+  }, sig);
+
   // --- Enlaces de la cabecera: al pulsar, el texto vuelve a rodar hacia arriba (como en el hover) ---
   // Si el enlace lleva a otra página, se espera un instante para que se vea el giro antes de cambiar.
   // Compara páginas sin fijarse en index.html ni en .html (hay servidores que las quitan: /carta en vez de /carta.html)

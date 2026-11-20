@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /qr.html
+
+Sitemap: https://www.woktwo.es/sitemap.xml

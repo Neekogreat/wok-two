@@ -107,6 +107,8 @@ const typo = (html) => html.split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/s
   .join('');
 
 const V = Date.now().toString(36);                  // versión: obliga al navegador a bajar css y js nuevos
+// Dirección absoluta de cada página (para canonical, hreflang, Open Graph y sitemap)
+const pageUrl = (l, page) => `${SITE_URL}/${l === 'en' ? 'en/' : ''}${page === 'index.html' ? '' : page}`;
 const build = (lang) => {
   const t = L[lang];
   const P = lang === 'en' ? '../' : '';              // ruta a los ficheros compartidos (css, js, imágenes)
@@ -123,7 +125,19 @@ const build = (lang) => {
 <meta name="theme-color" content="#b6161e">
 <title>${title}</title>
 <meta name="description" content="${desc}">
-<link rel="alternate" hreflang="${t.otherLang}" href="${OTHER}${page}">
+<link rel="canonical" href="${pageUrl(lang, page)}">
+<link rel="alternate" hreflang="es" href="${pageUrl('es', page)}">
+<link rel="alternate" hreflang="en" href="${pageUrl('en', page)}">
+<link rel="alternate" hreflang="x-default" href="${pageUrl('es', page)}">
+<link rel="icon" href="${P}favicon.svg" type="image/svg+xml">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wok Two">
+<meta property="og:title" content="${title}">
+<meta property="og:description" content="${desc}">
+<meta property="og:url" content="${pageUrl(lang, page)}">
+<meta property="og:image" content="${SITE_URL}/images/${byName['Menú 11, 40 unidades'][3]}-1024.jpg">
+<meta property="og:locale" content="${lang === 'en' ? 'en_GB' : 'es_ES'}">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&family=Dela+Gothic+One&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="${P}styles.css?v=${V}">
@@ -191,7 +205,7 @@ const build = (lang) => {
   <div class="mcard__body">
     <div class="mcard__top"><h3 class="mcard__name">${esc(name)}</h3><span class="mcard__price num">${t.eur(it[2])}</span></div>
     <p class="mcard__desc">${esc([detail, it[1] && t.tdesc(it[1])].filter(Boolean).join('. '))}</p>
-    <button type="button" class="mcard__btn" data-add="${all.indexOf(it)}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button>
+    <button type="button" class="mcard__btn" data-add="${esc(it[0])}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button>
   </div>
 </article>`; };
 
@@ -312,7 +326,7 @@ ${scripts}`;
   // ============ Carta ============
   const tabs = menu.map((c, i) => `<a href="#c-${c.id}" class="cat" data-cat="${c.id}"${i === 0 ? ' aria-current="true"' : ''}>${t.cat(c)}</a>`).join('\n        ');
   const row = (it) => { const [name, detail] = nm(it[0]); const d = [detail, it[1] && t.tdesc(it[1])].filter(Boolean).join('. ');
-    return `<li class="row"><div class="row__main"><span class="row__name">${esc(name)}</span>${d ? `<span class="row__desc">${esc(d)}</span>` : ''}</div><span class="row__price num">${t.eur(it[2])}</span><button type="button" class="row__add" data-add="${all.indexOf(it)}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button></li>`; };
+    return `<li class="row"><div class="row__main"><span class="row__name">${esc(name)}</span>${d ? `<span class="row__desc">${esc(d)}</span>` : ''}</div><span class="row__price num">${t.eur(it[2])}</span><button type="button" class="row__add" data-add="${esc(it[0])}" aria-label="${esc(t.orderDish(name))}">${t.orderNow}</button></li>`; };
   const panels = menu.map((c, i) => {
     const withPic = c.items.filter((i) => i[3]); const noPic = c.items.filter((i) => !i[3]); const note = t.note(c);
     return `<section class="panel${i === 0 ? ' is-open' : ''}" id="c-${c.id}" data-panel="${c.id}">
@@ -363,6 +377,11 @@ for (const [lang, other] of [['es', 'en'], ['en', 'es']]) {
   writeFileSync(new URL('index.html', dir), embed(pages[lang].home, pages[other].home));
   writeFileSync(new URL('carta.html', dir), embed(pages[lang].carta, pages[other].carta));
 }
+// ============ robots.txt y sitemap.xml (con SITE_URL) ============
+writeFileSync(new URL('robots.txt', import.meta.url), ['User-agent: *', 'Allow: /', 'Disallow: /qr.html', '', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join('\n'));
+const sitemapUrls = ['es', 'en'].flatMap((l) => ['index.html', 'carta.html'].map((p) => pageUrl(l, p)));
+writeFileSync(new URL('sitemap.xml', import.meta.url), ['<?xml version="1.0" encoding="UTF-8"?>', '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">', ...sitemapUrls.map((u) => `  <url><loc>${u}</loc></url>`), '</urlset>', ''].join('\n'));
+
 // ============ QR de la carta: qr.svg (suelto) y qr.html (cartel para imprimir) ============
 const qrUrl = SITE_URL + '/carta.html';
 const qr = qrcode(0, 'Q'); qr.addData(qrUrl); qr.make();

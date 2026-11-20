@@ -39,6 +39,17 @@ const boot = (instant = false) => {
   const pxImg = px && px.querySelector('[data-parallax-img]');
   const menu = document.querySelector('[data-menu]');
   let lastY = scrollY, queued = false;
+  // La barra pegada de la carta (categorías) sigue la posición REAL del borde de abajo de la cabecera en cada fotograma mientras esta
+  // se mueve (aparece, se esconde, se encoge): así no puede quedar ningún hueco entre las dos.
+  let navB = -1, navRun = 0, navUntil = 0;
+  const trackNav = () => {
+    navRun = 0;
+    if (!nav) return;
+    const b = Math.max(0, nav.getBoundingClientRect().bottom);
+    if (b !== navB) { navB = b; document.documentElement.style.setProperty('--nav-b', b.toFixed(2) + 'px'); }
+    if (performance.now() < navUntil) navRun = requestAnimationFrame(trackNav);
+  };
+  const kickNav = () => { navUntil = performance.now() + 600; if (!navRun) navRun = requestAnimationFrame(trackNav); };
   const onFrame = () => {
     queued = false;
     const y = scrollY, max = document.documentElement.scrollHeight - innerHeight;
@@ -48,6 +59,7 @@ const boot = (instant = false) => {
       const menuOpen = menu && menu.classList.contains('is-open');
       // Se esconde al bajar pasada la portada y vuelve en cuanto se sube.
       nav.classList.toggle('is-hidden', !menuOpen && y > lastY && y > 300);
+      kickNav();
     }
     if (pxImg && !still.matches) {
       const r = px.getBoundingClientRect();
@@ -63,11 +75,12 @@ const boot = (instant = false) => {
 
   // --- Enlaces de la cabecera: al pulsar, el texto vuelve a rodar hacia arriba (como en el hover) ---
   // Si el enlace lleva a otra página, se espera un instante para que se vea el giro antes de cambiar.
+  // Compara páginas sin fijarse en index.html ni en .html (hay servidores que las quitan: /carta en vez de /carta.html)
+  const norm = (p) => p.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, '').replace(/\/+$/, '');
   document.addEventListener('click', (e) => {
     // Un enlace de la cabecera o del menú a la página en la que ya estás (sin #): no hace nada.
     const nl = e.target.closest && e.target.closest('.nav a, .menu a');
     if (nl && nl.href && !nl.hash && !nl.hasAttribute('hreflang')) {
-      const norm = (p) => p.replace(/index\.html$/, '');
       const u = new URL(nl.href);
       if (u.origin === location.origin && u.search === '' && norm(u.pathname) === norm(location.pathname)) { e.preventDefault(); return; }
     }
@@ -75,7 +88,7 @@ const boot = (instant = false) => {
     if (!a || a.hasAttribute('hreflang')) return; // el botón de idioma no repite el giro al pulsar: ya rodó con el hover
     a.classList.remove('is-roll'); void a.offsetWidth; a.classList.add('is-roll');
     const go = a.href && !a.hasAttribute('hreflang') && !e.defaultPrevented && !e.button && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey
-      && new URL(a.href).pathname !== location.pathname;
+      && norm(new URL(a.href).pathname) !== norm(location.pathname);
     if (go) { e.preventDefault(); setTimeout(() => { location.href = a.href; }, 320); }
   }, { signal: ctl.signal });
 
@@ -162,7 +175,8 @@ const boot = (instant = false) => {
 
     // Al cambiar de sección, si el principio de la carta quedó por encima, se vuelve a él.
     const keepInView = () => {
-      const top = panelsBox.getBoundingClientRect().top + scrollY - carta.querySelector('.cats-bar').offsetHeight - 16;
+      const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-b')) || 0;
+      const top = panelsBox.getBoundingClientRect().top + scrollY - carta.querySelector('.cats-bar').offsetHeight - navH - 16;
       if (scrollY > top + 1) scrollTo({ top, behavior: still.matches ? 'auto' : 'smooth' });
     };
     const revealTab = (c) => {

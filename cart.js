@@ -10,6 +10,8 @@
   let catalog = [];
   try { catalog = JSON.parse(document.getElementById('catalog').textContent); } catch { /* sin catálogo no hay carrito */ }
   if (!catalog.length) return;
+  // Los platos se identifican por su nombre en español (no por su posición): así el carrito guardado sigue siendo válido aunque cambie la carta.
+  const byName = Object.fromEntries(catalog.map((c) => [c[0], c]));
 
   const S = {
     es: {
@@ -27,21 +29,22 @@
   const eur = (n) => (lang() === 'en' ? '€' + n.toFixed(2) : n.toFixed(2).replace('.', ',') + ' €');
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const $ = (sel) => document.querySelector(sel);
+  const norm = (p) => p.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, '').replace(/\/+$/, '');
 
   // --- Estado ---
   const load = () => {
     try {
       const raw = JSON.parse(localStorage.getItem(KEY) || '{}');
       const out = {};
-      for (const [id, q] of Object.entries(raw)) if (catalog[id] && q >= 1) out[id] = Math.min(MAX_QTY, Math.floor(q));
+      for (const [id, q] of Object.entries(raw)) if (byName[id] && q >= 1) out[id] = Math.min(MAX_QTY, Math.floor(q));
       return out;
     } catch { return {}; }
   };
   let cart = load();
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch { /* sin almacenamiento: el carrito dura lo que dure la página */ } };
   const count = () => Object.values(cart).reduce((a, b) => a + b, 0);
-  const total = () => Object.entries(cart).reduce((a, [id, q]) => a + catalog[id][2] * q, 0);
-  const nameOf = (id) => catalog[id][lang() === 'en' ? 1 : 0];
+  const total = () => Object.entries(cart).reduce((a, [id, q]) => a + byName[id][2] * q, 0);
+  const nameOf = (id) => byName[id][lang() === 'en' ? 1 : 0];
 
   // --- Horas de recogida: cada 15 min dentro del horario, a partir de ahora + el tiempo de preparación ---
   const nowMadrid = () => {
@@ -71,9 +74,9 @@
     dlg.querySelector('[data-cart-list]').innerHTML = Object.keys(cart).map((id) => {
       const nm = esc(nameOf(id));
       return `<li class="cart__item"><span class="cart__name">${nm}</span>`
-        + `<span class="cart__qty"><button type="button" data-cart-dec="${id}" aria-label="${esc(s.remove(nameOf(id)))}">−</button><b>${cart[id]}</b>`
-        + `<button type="button" data-cart-inc="${id}" aria-label="${esc(s.add(nameOf(id)))}">+</button></span>`
-        + `<span class="cart__price num">${eur(catalog[id][2] * cart[id])}</span></li>`;
+        + `<span class="cart__qty"><button type="button" data-cart-dec="${esc(id)}" aria-label="${esc(s.remove(nameOf(id)))}">−</button><b>${cart[id]}</b>`
+        + `<button type="button" data-cart-inc="${esc(id)}" aria-label="${esc(s.add(nameOf(id)))}">+</button></span>`
+        + `<span class="cart__price num">${eur(byName[id][2] * cart[id])}</span></li>`;
     }).join('');
     dlg.querySelector('[data-cart-total]').textContent = eur(t);
     dlg.querySelector('[data-cart-empty]').hidden = n > 0;
@@ -98,7 +101,7 @@
   // --- Mensaje del pedido (siempre en español: lo lee el restaurante) ---
   const message = (f) => {
     const money = (n) => n.toFixed(2).replace('.', ',') + ' €';
-    const lines = Object.keys(cart).map((id) => `${cart[id]} x ${catalog[id][0]} (${money(catalog[id][2] * cart[id])})`);
+    const lines = Object.keys(cart).map((id) => `${cart[id]} x ${byName[id][0]} (${money(byName[id][2] * cart[id])})`);
     return [
       '*Pedido para recoger - Wok Two*',
       `Nombre: ${f.name}`,
@@ -141,7 +144,7 @@
     const cl = t.closest('[data-cart-close]');
     if (cl) {
       close();
-      if (cl.matches('a') && new URL(cl.href).pathname.replace(/index\.html$/, '') === location.pathname.replace(/index\.html$/, '')) e.preventDefault();
+      if (cl.matches('a') && norm(new URL(cl.href).pathname) === norm(location.pathname)) e.preventDefault();
       return;
     }
     const inc = t.closest('[data-cart-inc]'), dec = t.closest('[data-cart-dec]');

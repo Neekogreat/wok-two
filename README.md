@@ -1,5 +1,11 @@
 # Wok Two
 
+> **Prototipo.** Esta web es una propuesta que hice por iniciativa propia para el restaurante Wok Two. No es su web
+> oficial, no está publicada para ellos y el restaurante no la encargó ni la ha aprobado.
+>
+> **Solo para ver.** El código se puede consultar, pero no tiene licencia de uso: no está permitido copiarlo,
+> modificarlo, redistribuirlo ni usarlo en otros proyectos. Ver [`LICENSE`](LICENSE).
+
 Web del restaurante Wok Two (calle Cuarteles 15, Málaga): portada, carta con precios, pedido para recoger
 por WhatsApp, versión en español e inglés y cartel con QR para imprimir. Es una web estática: no hace falta
 servidor ni dependencias, solo Node.js (18 o superior) para generar las páginas.
@@ -49,3 +55,8 @@ No hay pago online: se paga en el local. Las horas de recogida respetan el horar
 
 `netlify.toml` ejecuta `node build.mjs` y publica `dist/`. Las fuentes de letra están en `fonts/` (no se cargan de Google).
 Antes de publicar: completar `LEGAL` y repasar `ENTREGA.md`.
+
+## Derechos
+
+© 2026 Neekogreat. Todos los derechos reservados. El nombre, la carta y la marca Wok Two pertenecen a su restaurante,
+y las fotos de los platos a sus autores; aparecen aquí solo para mostrar el prototipo.

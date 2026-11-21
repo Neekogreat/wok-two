@@ -51,7 +51,7 @@ const L = {
     title: 'Wok Two, sushi y wok en Málaga', cartaTitle: 'Carta · Wok Two, sushi y wok en Málaga',
     desc: 'Wok Two, calle Cuarteles 15, Málaga. Sushi, makis, fideos y arroces a domicilio o para recoger. Abierto todos los días, comidas y cenas.',
     cartaDesc: `La carta completa de Wok Two: ${total} platos de sushi, makis, fideos, arroces y más, con precios. Pide para recoger.`,
-    skip: 'Ir al contenido', home: 'Inicio', carta: 'Carta', dest: 'Destacados', where: 'Dónde', revNav: 'Opiniones',
+    skip: 'Ir al contenido', home: 'Inicio', carta: 'Carta', dest: 'Destacados', where: 'Dónde', revNav: 'Opiniones', storyNav: 'Historia',
     storyLabel: 'Nuestra historia', storyTitle: 'Detrás de Wok Two', storyAlt: 'El matrimonio que lleva Wok Two (foto pendiente)',
     story: ['[Texto provisional] Aquí irá la historia del matrimonio que lleva Wok Two: de dónde vienen, cómo llegaron a Málaga y por qué abrieron el restaurante.', '[Texto provisional] Un segundo párrafo para contar qué cocinan, cómo trabajan cada día y qué les gusta de recibir a sus clientes.'], order: 'Pide ahora', menuBtn: 'Menú', mobileNav: 'Móvil', mainNav: 'Principal',
     heroLabel: 'Portada', slides: 'Diapositivas', slide: 'Diapositiva',
@@ -81,7 +81,7 @@ const L = {
     title: 'Wok Two, sushi and wok in Málaga', cartaTitle: 'Menu · Wok Two, sushi and wok in Málaga',
     desc: 'Wok Two, Calle Cuarteles 15, Málaga. Sushi, maki, noodles and rice for delivery or pickup. Open every day, lunch and dinner.',
     cartaDesc: `The full Wok Two menu: ${total} dishes of sushi, maki, noodles, rice and more, with prices. Order for pickup.`,
-    skip: 'Skip to content', home: 'Home', carta: 'Menu', dest: 'Favourites', where: 'Find us', revNav: 'Reviews',
+    skip: 'Skip to content', home: 'Home', carta: 'Menu', dest: 'Favourites', where: 'Find us', revNav: 'Reviews', storyNav: 'Our story',
     storyLabel: 'Our story', storyTitle: 'Behind Wok Two', storyAlt: 'The couple who run Wok Two (photo to come)',
     story: ['[Placeholder text] The story of the couple who run Wok Two will go here: where they come from, how they came to Málaga and why they opened the restaurant.', '[Placeholder text] A second paragraph about what they cook, how they work every day and what they enjoy about welcoming customers.'], order: 'Order now', menuBtn: 'Menu', mobileNav: 'Mobile', mainNav: 'Main',
     heroLabel: 'Welcome', slides: 'Slides', slide: 'Slide',
@@ -163,7 +163,7 @@ const build = (lang) => {
 <script>document.documentElement.classList.add('js');</script>
 </head>`;
 
-  const navItems = (home) => [[home ? '#top' : 'index.html', t.home], ['carta.html', t.carta], [home ? '#destacados' : 'index.html#destacados', t.dest], [home ? '#donde' : 'index.html#donde', t.where], [home ? '#opiniones' : 'index.html#opiniones', t.revNav]];
+  const navItems = (home) => [[home ? '#top' : 'index.html', t.home], ['carta.html', t.carta], [home ? '#destacados' : 'index.html#destacados', t.dest], [home ? '#donde' : 'index.html#donde', t.where], [home ? '#opiniones' : 'index.html#opiniones', t.revNav], [home ? '#historia' : 'index.html#historia', t.storyNav]];
   const header = (home, page) => `<div class="progress" data-progress aria-hidden="true"></div>
 <header class="nav" data-nav>
   <div class="container nav__in">

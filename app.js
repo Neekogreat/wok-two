@@ -182,6 +182,29 @@ const boot = (instant = false) => {
     track.addEventListener('scroll', sync, { passive: true }); addEventListener('resize', sync, sig); sync();
   }
 
+  // --- Móvil: puntos bajo los carruseles (destacados y carta) para saber cuántos platos hay y en cuál estás ---
+  document.querySelectorAll('.dots[data-auto]').forEach((d) => d.remove());
+  const addDots = (scroller, after) => {
+    const items = [...scroller.children];
+    if (items.length < 2) return;
+    const dots = document.createElement('div');
+    dots.className = 'dots'; dots.dataset.auto = ''; dots.setAttribute('aria-hidden', 'true');
+    dots.innerHTML = items.map(() => '<i></i>').join('');
+    after.after(dots);
+    const ds = [...dots.children];
+    const update = () => {
+      const w = scroller.clientWidth; if (!w) return;
+      const mid = scroller.scrollLeft + w / 2;
+      let best = 0, bd = Infinity;
+      items.forEach((el, i) => { const d = Math.abs(el.offsetLeft - scroller.offsetLeft + el.offsetWidth / 2 - mid); if (d < bd) { bd = d; best = i; } });
+      ds.forEach((d, i) => d.classList.toggle('is-on', i === best));
+    };
+    scroller.addEventListener('scroll', update, { passive: true, ...sig }); addEventListener('resize', update, sig); update();
+  };
+  const railTrack = document.querySelector('[data-rail-track]');
+  if (railTrack) addDots(railTrack, railTrack.closest('[data-rail]'));
+  document.querySelectorAll('.panel .grid').forEach((g) => addDots(g, g));
+
   // --- Carta: pestañas ---
   const carta = document.querySelector('[data-carta]');
   if (carta) {

@@ -551,3 +551,11 @@ body:has(dialog[open]) { overflow: hidden; }
 
 /* Puntos sobre fondo claro (especialidad): borde oscuro para que se vean */
 @media (max-width: 40rem) { .sec--white .dots i { border-color: rgb(0 0 0 / 0.4); } .sec--white .dots i.is-on { border-color: var(--red); } }
+
+/* Móvil, platos sin foto (lista): el precio a la derecha del nombre y el botón "Añadir" centrado debajo */
+@media (max-width: 40rem) {
+  .row { grid-template-columns: minmax(0, 1fr) auto; align-items: start; gap: 12px 16px; }
+  .row__main { grid-column: 1; grid-row: 1; }
+  .row__price { grid-column: 2; grid-row: 1; align-self: start; width: auto; min-width: 0; padding: 4px 12px; font-size: 20px; line-height: 28px; }
+  .row__add { grid-column: 1 / -1; grid-row: 2; justify-self: center; width: min(100%, 240px); }
+}

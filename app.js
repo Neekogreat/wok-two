@@ -76,7 +76,7 @@ const boot = (instant = false) => {
   // --- Foto del plato: al pulsarla se abre grande; se cierra pulsando en cualquier sitio o con Escape ---
   let zoom;
   document.addEventListener('click', (e) => {
-    const im = e.target.closest && e.target.closest('.mcard__img > img'); if (!im) return;
+    const im = e.target.closest && e.target.closest('.mcard__img > img, .story__photo img'); if (!im) return;
     if (!zoom) {
       zoom = document.createElement('dialog'); zoom.className = 'zoom';
       zoom.innerHTML = '<img alt=""><button type="button" class="zoom__x" aria-label="' + (document.documentElement.lang === 'en' ? 'Close' : 'Cerrar') + '">×</button>';

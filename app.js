@@ -204,6 +204,10 @@ const boot = (instant = false) => {
   const railTrack = document.querySelector('[data-rail-track]');
   if (railTrack) addDots(railTrack, railTrack.closest('[data-rail]'));
   document.querySelectorAll('.panel .grid').forEach((g) => addDots(g, g));
+  const specs = document.querySelector('.specs');
+  if (specs) addDots(specs, specs);
+  const reviewsRow = document.querySelector('.reviews');
+  if (reviewsRow) addDots(reviewsRow, reviewsRow);
 
   // --- Carta: pestañas ---
   const carta = document.querySelector('[data-carta]');

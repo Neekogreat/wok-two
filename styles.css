@@ -548,3 +548,6 @@ body:has(dialog[open]) { overflow: hidden; }
   .spec__img { flex: none; }
   .spec__body { flex: 1; }
 }
+
+/* Puntos sobre fondo claro (especialidad): borde oscuro para que se vean */
+@media (max-width: 40rem) { .sec--white .dots i { border-color: rgb(0 0 0 / 0.4); } .sec--white .dots i.is-on { border-color: var(--red); } }

@@ -1,9 +1,0 @@
-# Archivos que no hacen falta en la web publicada
-build.mjs
-fetch-images.mjs
-menu.mjs
-menu-en.mjs
-tools
-README.md
-.claude
-.hallmark

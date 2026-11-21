@@ -10,8 +10,8 @@ servidor ni dependencias, solo Node.js (18 o superior) para generar las páginas
 node build.mjs
 ```
 
-Genera `index.html`, `carta.html`, `en/index.html`, `en/carta.html`, `qr.html`, `qr.svg`, `robots.txt` y
-`sitemap.xml`. Los HTML **no se editan a mano**: se vuelven a crear cada vez. Para verla, abre `index.html`.
+Genera `index.html`, `carta.html`, las páginas legales (`aviso-legal.html`, `privacidad.html`, `cookies.html`), sus
+versiones en `en/`, `qr.html`, `qr.svg`, `robots.txt` y `sitemap.xml`, y copia lo publicable a `dist/`. Los HTML **no se editan a mano**: se vuelven a crear cada vez. Para verla, abre `index.html`.
 
 ## Qué se toca y dónde
 
@@ -22,6 +22,7 @@ Genera `index.html`, `carta.html`, `en/index.html`, `en/carta.html`, `qr.html`, 
 | Horario (web, aviso de abierto/cerrado y horas de recogida) | `HOURS` en `build.mjs` |
 | «Nuestra historia» (texto y foto) | textos `story` en `L.es`/`L.en` y foto en `images/`; para ocultarla, `STORY_READY = false` en `build.mjs` |
 | Número de WhatsApp que recibe los pedidos | `WHATSAPP` en `build.mjs` |
+| Datos del titular (aviso legal y privacidad) | `LEGAL` en `build.mjs`; textos en `legal.mjs` |
 | Dirección de la web (QR, canonical, sitemap, redes) | `SITE_URL` en `build.mjs`; al ser la definitiva, `SITE_URL_SET = true` |
 | Estilos | `styles.css` |
 | Comportamiento (menú, carrusel, pestañas de la carta, abierto/cerrado) | `app.js` |
@@ -43,3 +44,8 @@ en `menu.mjs`, `node fetch-images.mjs` la descarga.
 
 El cliente elige platos, rellena nombre, teléfono y hora de recogida, y se abre WhatsApp con el pedido escrito.
 No hay pago online: se paga en el local. Las horas de recogida respetan el horario (`HOURS` en `build.mjs`) y dejan 30 minutos de preparación.
+
+## Publicar (Netlify)
+
+`netlify.toml` ejecuta `node build.mjs` y publica `dist/`. Las fuentes de letra están en `fonts/` (no se cargan de Google).
+Antes de publicar: completar `LEGAL` y repasar `ENTREGA.md`.

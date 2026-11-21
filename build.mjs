@@ -1,12 +1,13 @@
 // Genera la web en español (index.html, carta.html) y en inglés (en/index.html, en/carta.html)
 // a partir de menu.mjs y menu-en.mjs. Uso: node build.mjs
 // Estructura, estilos y animaciones según lanubeburger.com (por petición); textos, fotos y precios de Wok Two.
-import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, cpSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 const qrcode = createRequire(import.meta.url)('./tools/qrcode.cjs'); // generador de QR (MIT, Kazuhiko Arase)
 import { menu, destacados } from './menu.mjs';
 import * as EN from './menu-en.mjs';
+import { legalPages, pendingLegal } from './legal.mjs';
 
 const JUSTEAT = 'https://www.just-eat.es/restaurants-wok-two-malaga/menu';
 // Número de WhatsApp del restaurante que recibe los pedidos para recoger (con prefijo de país, solo dígitos, p. ej. 34600123456).
@@ -22,6 +23,18 @@ const MAPS = 'https://www.google.com/maps/search/?api=1&query=' + encodeURICompo
 const HOURS = [['12:00', '16:30'], ['19:00', '24:00']];
 // "Nuestra historia": sección y enlace en el menú (textos en L.es.story y L.en.story). Con false se ocultan las dos cosas.
 const STORY_READY = true;
+// Datos del titular de la web (los exige la LSSI, art. 10, en el aviso legal) y responsable del tratamiento de datos (RGPD).
+// Son los del RESTAURANTE, no los tuyos. Rellénalos antes de publicar: mientras un valor empiece por "[" saldrá resaltado
+// en amarillo en las páginas legales y este script avisará al generar.
+const LEGAL = {
+  name: '[RAZÓN SOCIAL O NOMBRE Y APELLIDOS DEL TITULAR]',
+  nif: '[NIF / CIF]',
+  address: 'Calle Cuarteles 15, 29002 Málaga',
+  email: '[EMAIL DE CONTACTO DEL RESTAURANTE]',
+  phone: '+34 688 12 26 09',
+  registry: '', // Registro Mercantil (solo si es sociedad inscrita), p. ej. 'Registro Mercantil de Málaga, tomo …, folio …, hoja …'. Vacío = no se muestra.
+  updated: '2026-11', // mes de la última revisión de los textos legales (AAAA-MM)
+};
 const NBSP = '\u00A0'; // espacio que no se parte
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const json = (v) => JSON.stringify(v).replace(/</g, '\\u003c'); // JSON seguro dentro de <script>
@@ -47,8 +60,7 @@ const reviews = [
   [5, 'Se come genial por un muy buen precio. Tienen menús de sushi muy variados de distintas cantidades. Los tallarines están buenísimos y vienen raciones muy grandes por el bajo precio que tienen. La dueña es super simpática y ofrece un excelente servicio.'],
 ];
 
-// Quién escribió cada reseña (mismo orden que arriba): [nombre, foto de perfil].
-const reviewers = [['Daniel Vázquez', 'avatar-1.png'], ['Maria Sanchez carrillo', 'avatar-2.png'], ['Camilo Vanderhuck', 'avatar-3.png'], ['Reichel Mora', 'avatar-4.png']];
+// Las reseñas se publican sin nombre ni foto de quien las escribió (son datos personales).
 
 // Textos de cada idioma.
 const L = {
@@ -75,6 +87,8 @@ const L = {
     badge: 'Destacado', orderNow: 'Añadir', orderDish: (n) => `Añadir ${n} al pedido`,
     cartFab: 'Mi pedido', cartTitle: 'Tu pedido', cartClose: 'Cerrar', cartEmpty: 'Todavía no has añadido nada.', cartEmptyBtn: 'Ver la carta', cartTotal: 'Total', cartClear: 'Vaciar pedido',
     pickupInfo: 'Pedido para recoger en Calle Cuarteles 15, Málaga. Pagas en el local al recoger.', fName: 'Nombre', fPhone: 'Teléfono', fTime: 'Hora de recogida', fNotes: 'Notas (opcional)', fNotesPh: 'Alergias, sin cebolla…', send: 'Enviar pedido por WhatsApp',
+    formLegal: (a) => `Usaremos tu nombre, teléfono y notas (incluidas las alergias, si las escribes) solo para preparar tu pedido. Responsable: ${LEGAL.name}. El pedido se envía desde tu WhatsApp, que gestiona Meta. Más información en la <a href="${a}">política de privacidad</a>.`,
+    legalNav: 'Información legal', aviso: 'Aviso legal', priv: 'Política de privacidad', cook: 'Política de cookies', back: 'Volver al inicio',
     delLabel: 'A domicilio', delTitle: 'Pide desde casa', delSub: 'Te lo llevamos por Málaga, del 29001 al 29018 y al 29190. O pide y pasa a recogerlo.', pickup: 'Pasar a recoger',
     revLabel: 'Opiniones', revTitle: 'Lo que dicen de nosotros', revAll: 'Ver todas en Google Maps', revFrom: 'Reseña de Google Maps', stars: (n) => n + ' de 5 estrellas',
     findTitle: 'Encuéntranos en Málaga', mapTitle: 'Mapa: Wok Two en la calle Cuarteles 15, Málaga', address: 'Dirección', addr: 'Calle Cuarteles, 15<br>29002 Málaga, España',
@@ -105,6 +119,8 @@ const L = {
     badge: 'Favourite', orderNow: 'Add', orderDish: (n) => `Add ${n} to the order`,
     cartFab: 'My order', cartTitle: 'Your order', cartClose: 'Close', cartEmpty: 'You have not added anything yet.', cartEmptyBtn: 'See the menu', cartTotal: 'Total', cartClear: 'Clear order',
     pickupInfo: 'Pickup order at Calle Cuarteles 15, Málaga. You pay at the restaurant when you collect it.', fName: 'Name', fPhone: 'Phone', fTime: 'Pickup time', fNotes: 'Notes (optional)', fNotesPh: 'Allergies, no onion…', send: 'Send order by WhatsApp',
+    formLegal: (a) => `We use your name, phone number and notes (including allergies, if you write them) only to prepare your order. Controller: ${LEGAL.name}. The order is sent from your own WhatsApp, which is run by Meta. More information in the <a href="${a}">privacy policy</a>.`,
+    legalNav: 'Legal information', aviso: 'Legal notice', priv: 'Privacy policy', cook: 'Cookie policy', back: 'Back to home',
     delLabel: 'Delivery', delTitle: 'Order from home', delSub: 'We deliver across Málaga, postcodes 29001 to 29018 and 29190. Or order and pick it up.', pickup: 'Pick up',
     revLabel: 'Reviews', revTitle: 'What people say', revAll: 'See all on Google Maps', revFrom: 'Google Maps review', stars: (n) => n + ' out of 5 stars',
     findTitle: 'Find us in Málaga', mapTitle: 'Map: Wok Two at Calle Cuarteles 15, Málaga', address: 'Address', addr: 'Calle Cuarteles, 15<br>29002 Málaga, Spain',
@@ -135,7 +151,7 @@ const typo = (html) => html.split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/s
 
 // Versión de css y js: huella de su contenido. Cambia solo si cambian, así el navegador baja los nuevos
 // y un build sin cambios no toca los HTML.
-const V = (() => { const h = createHash('sha256'); for (const f of ['styles.css', 'app.js', 'cart.js']) h.update(readFileSync(new URL(f, import.meta.url))); return h.digest('hex').slice(0, 8); })();
+const V = (() => { const h = createHash('sha256'); for (const f of ['styles.css', 'app.js', 'cart.js', 'fonts/fonts.css']) h.update(readFileSync(new URL(f, import.meta.url))); return h.digest('hex').slice(0, 8); })();
 
 // Farolillos de adorno (portada y cartel QR): [color del papel, kanji]. Cada sitio los cuelga en sus posiciones.
 const LANTERNS = [['#fbf1dc', '福'], ['#ffffff', '寿'], ['#f4d58d', '味'], ['#f4d58d', '酒'], ['#fbf1dc', '喜'], ['#ffffff', '祭'],
@@ -190,8 +206,7 @@ const build = (lang) => {
 <meta property="og:image" content="${SITE_URL}/images/${byName['Menú 11, 40 unidades'][3]}-1024.jpg">
 <meta property="og:locale" content="${lang === 'en' ? 'en_GB' : 'es_ES'}">
 <meta name="twitter:card" content="summary_large_image">
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@400;500;600;700;800&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="${P}fonts/fonts.css?v=${V}">
 <link rel="stylesheet" href="${P}styles.css?v=${V}">
 <script>document.documentElement.classList.add('js');</script>
 </head>`;
@@ -217,7 +232,7 @@ const build = (lang) => {
     <div class="foot__col"><h2>${t.contact}</h2><ul><li><a href="${MAPS}" rel="noopener">C/ Cuarteles, 15</a></li><li><a href="${MAPS}" rel="noopener">29002 Málaga</a></li><li><a href="carta.html" data-open-cart>${t.order}</a></li></ul></div>
     <div class="foot__col"><h2>${t.hours}</h2><ul><li>${t.everyDay}</li>${HOURS.map(([a, b]) => `<li class="num">${a} – ${b}</li>`).join('')}</ul></div>
   </div>
-  <div class="container foot__base"><p>© ${new Date().getFullYear()} Wok Two. ${t.rights}</p></div>
+  <div class="container foot__base"><p>© ${new Date().getFullYear()} Wok Two. ${t.rights}</p><ul class="foot__legal" aria-label="${t.legalNav}"><li><a href="aviso-legal.html">${t.aviso}</a></li><li><a href="privacidad.html">${t.priv}</a></li><li><a href="cookies.html">${t.cook}</a></li></ul></div>
 </footer>
 <a class="visit" href="${home ? '#donde' : 'index.html#donde'}" data-visit>${PIN}<span>${t.visit}</span></a>`;
 
@@ -235,6 +250,7 @@ const build = (lang) => {
       <label>${t.fPhone}<input name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="20"></label>
       <label>${t.fTime}<select name="time" data-cart-time required></select></label>
       <label>${t.fNotes}<textarea name="notes" rows="2" maxlength="200" placeholder="${t.fNotesPh}"></textarea></label>
+      <p class="cart__legal">${t.formLegal('privacidad.html')}</p>
       <p class="cart__err" role="alert" data-cart-err></p>
       <button type="submit" class="cart__send">${t.send}</button>
       <button type="button" class="cart__clear" data-cart-clear>${t.cartClear}</button>
@@ -375,7 +391,7 @@ ${header(true, 'index.html')}
     <div class="container">
       <div class="shead reveal"><span class="label">${t.revLabel}</span><h2 class="title-xl" id="h-rev">${t.revTitle}</h2></div>
       <ul class="reviews">
-        ${reviews.map(([n, txt], i) => `<li class="review reveal" style="--d:${i * 0.1}s"><div class="review__who"><img src="${P}images/${reviewers[i][1]}" alt="" width="48" height="48" loading="lazy" decoding="async"><strong>${esc(reviewers[i][0])}</strong></div><p class="review__stars" role="img" aria-label="${t.stars(n)}"><span aria-hidden="true">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span></p><blockquote class="review__text">${txt.split('|').map((p) => `<p>${esc(p)}</p>`).join('')}</blockquote><p class="review__from">${t.revFrom}</p></li>`).join('\n        ')}
+        ${reviews.map(([n, txt], i) => `<li class="review reveal" style="--d:${i * 0.1}s"><p class="review__stars" role="img" aria-label="${t.stars(n)}"><span aria-hidden="true">${'★'.repeat(n)}<i>${'★'.repeat(5 - n)}</i></span></p><blockquote class="review__text">${txt.split('|').map((p) => `<p>${esc(p)}</p>`).join('')}</blockquote><p class="review__from">${t.revFrom}</p></li>`).join('\n        ')}
       </ul>
       <p class="reviews__all"><a class="btn-white" href="${MAPS}" rel="noopener"><span>${t.revAll}</span>${ARROW}</a></p>
     </div>
@@ -438,16 +454,40 @@ ${header(false, 'carta.html')}
 ${footer(false)}
 ${scripts}`;
 
-  return { home: typo(home), carta: typo(carta) };
+  // ============ Páginas legales (aviso legal, privacidad, cookies) ============
+  const legal = Object.fromEntries(Object.entries(legalPages(lang, LEGAL)).map(([slug, p]) => [slug, typo(`${head(p.title + ' · Wok Two', p.desc, slug)}
+<body class="page-legal">
+<a class="skip" href="#main">${t.skip}</a>
+${header(false, slug)}
+
+<main id="main">
+  <section class="phead phead--legal" aria-labelledby="h-legal">
+    <div class="container"><span class="label">${t.legalNav}</span><h1 class="title-xl" id="h-legal">${p.title}</h1></div>
+  </section>
+  <section class="legal">
+    <div class="container">
+${p.body}
+      <p><a href="index.html">${t.back}</a></p>
+    </div>
+  </section>
+</main>
+
+${footer(false)}
+${scripts}`)]));
+
+  return { home: typo(home), carta: typo(carta), legal };
 };
 
 for (const lang of ['es', 'en']) {
   const dir = new URL(lang === 'en' ? './en/' : './', import.meta.url);
   mkdirSync(dir, { recursive: true });
-  const { home, carta } = build(lang);
+  const { home, carta, legal } = build(lang);
   writeFileSync(new URL('index.html', dir), home);
   writeFileSync(new URL('carta.html', dir), carta);
+  for (const [slug, html] of Object.entries(legal)) writeFileSync(new URL(slug, dir), html);
 }
+const pending = pendingLegal(LEGAL);
+if (pending.length) console.warn(`\n⚠ Faltan datos del titular en LEGAL (build.mjs): ${pending.join(', ')}. Las páginas legales los muestran resaltados en amarillo. No publicar así.\n`);
 // ============ robots.txt y sitemap.xml (con SITE_URL) ============
 writeFileSync(new URL('robots.txt', import.meta.url), ['User-agent: *', 'Allow: /', 'Disallow: /qr.html', '', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join('\n'));
 const sitemapUrls = ['es', 'en'].flatMap((l) => ['index.html', 'carta.html'].map((p) => pageUrl(l, p)));
@@ -471,8 +511,7 @@ writeFileSync(new URL('qr.html', import.meta.url), `<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
 <title>Cartel QR · Wok Two</title>
-<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow:wght@500;700;800&family=Dela+Gothic+One&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
   @page { size: A4; margin: 0; }
   * { box-sizing: border-box; }
@@ -529,3 +568,12 @@ ${SITE_URL_SET ? '' : `<p class="warn">Dirección provisional (${qrUrl}). Antes 
 `);
 const missing = all.map((it) => split(it[0])[0]).filter((b) => !/^Menú \d+$/.test(b) && !(b in EN.names));
 console.log('Escritos index.html, carta.html, en/index.html, en/carta.html, qr.html, qr.svg:', total, 'platos', missing.length ? '\nSin traducir: ' + missing.join(', ') : '');
+
+// ============ dist/: solo lo que se publica (Netlify publica esta carpeta; los fuentes del generador no salen) ============
+const DIST = new URL('./dist/', import.meta.url);
+rmSync(DIST, { recursive: true, force: true });
+mkdirSync(DIST, { recursive: true });
+const PUBLISH = ['index.html', 'carta.html', 'aviso-legal.html', 'privacidad.html', 'cookies.html', 'qr.html', 'qr.svg', 'robots.txt', 'sitemap.xml',
+  'favicon.svg', 'logo.svg', 'styles.css', 'app.js', 'cart.js', 'en', 'images', 'fonts'];
+for (const f of PUBLISH) cpSync(new URL(f, import.meta.url), new URL(f, DIST), { recursive: true });
+console.log('dist/ listo para publicar (' + PUBLISH.length + ' elementos)');

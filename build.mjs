@@ -1,7 +1,8 @@
 // Genera la web en español (index.html, carta.html) y en inglés (en/index.html, en/carta.html)
 // a partir de menu.mjs y menu-en.mjs. Uso: node build.mjs
 // Estructura, estilos y animaciones según lanubeburger.com (por petición); textos, fotos y precios de Wok Two.
-import { writeFileSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
+import { createHash } from 'node:crypto';
 import { createRequire } from 'node:module';
 const qrcode = createRequire(import.meta.url)('./tools/qrcode.cjs'); // generador de QR (MIT, Kazuhiko Arase)
 import { menu, destacados } from './menu.mjs';
@@ -16,7 +17,14 @@ const SITE_URL = 'https://www.woktwo.es';
 const SITE_URL_SET = false;
 const ADDRESS = 'Wok Two, Calle Cuarteles 15, 29002 Málaga';
 const MAPS = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(ADDRESS);
+// Horario (todos los días): comidas y cenas. Es el único sitio donde se cambia: de aquí salen los textos de la web,
+// el aviso de "abierto/cerrado" (app.js) y las horas de recogida del pedido (cart.js), que lo leen de <html data-hours>.
+const HOURS = [['12:00', '16:30'], ['19:00', '24:00']];
+// "Nuestra historia": la sección y su enlace no se publican hasta tener el texto y la foto reales (textos en L.es.story y L.en.story).
+const STORY_READY = false;
+const NBSP = '\u00A0'; // espacio que no se parte
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const json = (v) => JSON.stringify(v).replace(/</g, '\\u003c'); // JSON seguro dentro de <script>
 const split = (full) => { const i = full.indexOf(','); return i < 0 ? [full, ''] : [full.slice(0, i), full.slice(i + 1).trim()]; };
 const ARROW = '<svg class="arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>';
 const PIN = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>';
@@ -26,6 +34,7 @@ const all = menu.flatMap((c) => c.items);
 const total = all.length;
 const byName = Object.fromEntries(all.map((it) => [it[0], it]));
 const cheapest = Math.min(...menu[0].items.map((i) => i[2]).filter((p) => p < 40));
+const platterPieces = parseInt(split(all.find((it) => it[0].startsWith('Plato Grande,'))[0])[1], 10);
 const isDest = new Set(destacados);
 // Catálogo para el carrito: [nombre en español, nombre en inglés, precio]; el número del plato es su posición.
 const catalog = all.map((it) => [it[0], EN.nameEn(it[0]), it[2]]);
@@ -44,7 +53,7 @@ const reviewers = [['Daniel Vázquez', 'avatar-1.png'], ['Maria Sanchez carrillo
 // Textos de cada idioma.
 const L = {
   es: {
-    eur: (n) => n.toFixed(2).replace('.', ',') + ' €', // espacio que no se parte: el € nunca baja solo a otra línea
+    eur: (n) => n.toFixed(2).replace('.', ',') + NBSP + '€', // el € nunca baja solo a otra línea
     name: (s) => s, tdesc: (s) => s, cat: (c) => c.label, note: (c) => c.note,
     showDesc: 'Ver descripción', hideDesc: 'Ocultar descripción',
     other: 'EN', otherLang: 'en', otherLabel: 'English version',
@@ -69,7 +78,7 @@ const L = {
     delLabel: 'A domicilio', delTitle: 'Pide desde casa', delSub: 'Te lo llevamos por Málaga, del 29001 al 29018 y al 29190. O pide y pasa a recogerlo.', pickup: 'Pasar a recoger',
     revLabel: 'Opiniones', revTitle: 'Lo que dicen de nosotros', revAll: 'Ver todas en Google Maps', revFrom: 'Reseña de Google Maps', stars: (n) => n + ' de 5 estrellas',
     findTitle: 'Encuéntranos en Málaga', mapTitle: 'Mapa: Wok Two en la calle Cuarteles 15, Málaga', address: 'Dirección', addr: 'Calle Cuarteles, 15<br>29002 Málaga, España',
-    hours: 'Horario', lunch: 'Comidas · todos los días', dinner: 'Cenas · todos los días', now: 'Ahora', statusDefault: 'Abierto todos los días, de 12:00 a 16:30 y de 19:00 a 24:00.', directions: 'Cómo llegar',
+    hours: 'Horario', lunch: 'Comidas · todos los días', dinner: 'Cenas · todos los días', now: 'Ahora', statusDefault: `Abierto todos los días, ${HOURS.map(([a, b]) => `de ${a} a ${b}`).join(' y ')}.`, directions: 'Cómo llegar',
     footBlurb: 'Sushi, makis, fideos y arroces en la calle Cuarteles. Sabor auténtico en Málaga. A domicilio o para recoger.', nav: 'Navegación', contact: 'Contacto', everyDay: 'Todos los días', rights: 'Todos los derechos reservados.', visit: 'Visítanos',
     discover: 'Descubre', cartaH: 'Nuestra carta', sections: 'Secciones de la carta', more2: (l) => `Más ${l.toLowerCase()}`,
   },
@@ -99,7 +108,7 @@ const L = {
     delLabel: 'Delivery', delTitle: 'Order from home', delSub: 'We deliver across Málaga, postcodes 29001 to 29018 and 29190. Or order and pick it up.', pickup: 'Pick up',
     revLabel: 'Reviews', revTitle: 'What people say', revAll: 'See all on Google Maps', revFrom: 'Google Maps review', stars: (n) => n + ' out of 5 stars',
     findTitle: 'Find us in Málaga', mapTitle: 'Map: Wok Two at Calle Cuarteles 15, Málaga', address: 'Address', addr: 'Calle Cuarteles, 15<br>29002 Málaga, Spain',
-    hours: 'Opening hours', lunch: 'Lunch · every day', dinner: 'Dinner · every day', now: 'Now', statusDefault: 'Open every day, 12:00 to 16:30 and 19:00 to 24:00.', directions: 'Get directions',
+    hours: 'Opening hours', lunch: 'Lunch · every day', dinner: 'Dinner · every day', now: 'Now', statusDefault: `Open every day, ${HOURS.map(([a, b]) => `${a} to ${b}`).join(' and ')}.`, directions: 'Get directions',
     footBlurb: 'Sushi, maki, noodles and rice on Calle Cuarteles. Authentic flavour in Málaga. Delivery or pickup.', nav: 'Navigation', contact: 'Contact', everyDay: 'Every day', rights: 'All rights reserved.', visit: 'Visit us',
     discover: 'Discover', cartaH: 'Our menu', sections: 'Menu sections', more2: (l) => `More ${l.toLowerCase()}`,
   },
@@ -109,14 +118,13 @@ const L = {
 // el número va siempre con la palabra que le sigue ("4 californias", "12,80 €"), la viñeta "•" no empieza línea y,
 // en textos de 3 o más palabras, las dos últimas van juntas si son cortas (así no queda una palabra sola abajo).
 // Los nombres de platos no se tocan: sus tarjetas son estrechas y ya se reparten en líneas equilibradas.
-const NB = ' ';
 const tidy = (txt, tag) => {
   if (!txt.trim() || txt.includes('{')) return txt;
-  let out = txt.replace(/(\d) (?=\S)/g, '$1' + NB).replace(/ (•|·|–)(?= )/g, NB + '$1');
+  let out = txt.replace(/(\d) (?=\S)/g, '$1' + NBSP).replace(/ (•|·|–)(?= )/g, NBSP + '$1');
   if (!/mcard__name|row__name/.test(tag)) {
     out = out.replace(/(\S+ \S+) (\S+)(\s*)$/, (m, head, last, sp) => {
       const prev = head.split(' ').pop();
-      return (prev + last).length <= 16 ? head + NB + last + sp : m;
+      return (prev + last).length <= 16 ? head + NBSP + last + sp : m;
     });
   }
   return out;
@@ -125,7 +133,32 @@ const typo = (html) => html.split(/(<script[\s\S]*?<\/script>|<style[\s\S]*?<\/s
   .map((part, i) => (i % 2 ? part : part.replace(/(<[^>]*>)([^<>]+)(?=<)/g, (m, tag, txt) => tag + tidy(txt, tag))))
   .join('');
 
-const V = Date.now().toString(36);                  // versión: obliga al navegador a bajar css y js nuevos
+// Versión de css y js: huella de su contenido. Cambia solo si cambian, así el navegador baja los nuevos
+// y un build sin cambios no toca los HTML.
+const V = (() => { const h = createHash('sha256'); for (const f of ['styles.css', 'app.js', 'cart.js']) h.update(readFileSync(new URL(f, import.meta.url))); return h.digest('hex').slice(0, 8); })();
+
+// Farolillos de adorno (portada y cartel QR): [color del papel, kanji]. Cada sitio los cuelga en sus posiciones.
+const LANTERNS = [['#fbf1dc', '福'], ['#ffffff', '寿'], ['#f4d58d', '味'], ['#f4d58d', '酒'], ['#fbf1dc', '喜'], ['#ffffff', '祭'],
+  ['#fbf1dc', '旨'], ['#f4d58d', '酒'], ['#ffffff', '福'], ['#fbf1dc', '寿'], ['#f4d58d', '味'], ['#ffffff', '喜']];
+// Dibujo de un farolillo; dy baja todo el dibujo (el del cartel lleva 12 de cordón arriba).
+const lantern = (fill, kanji, dy = 0) => { const y = (n) => n + dy;
+  return `<rect x="17" y="${y(2)}" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 ${y(10)} C-2 ${y(18)} -2 ${y(60)} 17 ${y(68)} L43 ${y(68)} C62 ${y(60)} 62 ${y(18)} 43 ${y(10)} Z" fill="${fill}"/>`
+    + `<g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none">${[[7, 24, 29, 53], [3, 36, 42, 57], [3, 48, 54, 57], [7, 60, 66, 53]].map(([x1, a, b, x2]) => `<path d="M${x1} ${y(a)} Q30 ${y(b)} ${x2} ${y(a)}"/>`).join('')}</g>`
+    + `<text x="30" y="${y(48)}" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">${kanji}</text>`
+    + `<rect x="17" y="${y(68)}" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="${y(76)}" x2="30" y2="${y(92)}" stroke="#0a0a0a" stroke-width="1.6"/>`
+    + `<g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="${y(88)}" x2="26" y2="${y(100)}"/><line x1="30" y1="${y(88)}" x2="30" y2="${y(102)}"/><line x1="30" y1="${y(88)}" x2="34" y2="${y(100)}"/></g>`; };
+// Portada: [lado y distancia al borde, largo del cordón (px), escala, giro (°), retraso del balanceo (s), solo en pantallas anchas]
+const HERO_LANTERNS = [['left:3%', 120, 1.25, -3, 0], ['left:11%', 176, 0.9, 4, -1.4], ['left:18.5%', 108, 1.1, -2, -2.6], ['left:7%', 268, 0.78, 5, -0.7],
+  ['left:25%', 206, 0.66, -4, -3.3, true], ['left:31%', 112, 0.8, 3, -1.9, true], ['right:3%', 112, 1.2, 3, -0.4], ['right:11%', 184, 0.9, -4, -2.1],
+  ['right:18.5%', 104, 1.1, 2, -3], ['right:7%', 264, 0.78, -5, -1.1], ['right:25%', 200, 0.66, 4, -2.4, true], ['right:31%', 116, 0.8, -3, -0.9, true]];
+const heroLanterns = HERO_LANTERNS.map(([pos, y, s, r, d, wide], i) => `<div class="hl${wide ? ' hl--wide' : ''}" style="${pos};--y:${y}px;--s:${s};--r:${r}deg;--d:${d}s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">${lantern(...LANTERNS[i])}</svg></div>`).join('');
+// Cartel: [x, largo del cordón, giro (°), escala] sobre un lienzo de 794 de ancho
+const POSTER_LANTERNS = [[34, 22, -3, 0.92], [92, 58, 4, 0.7], [150, 10, -2, 1.05], [58, 112, 5, 0.6], [172, 92, -4, 0.52], [112, 150, 3, 0.46],
+  [754, 10, 3, 1], [690, 60, -4, 0.72], [630, 24, 2, 0.9], [736, 108, -5, 0.6], [644, 100, 4, 0.5], [702, 152, -3, 0.44]];
+const posterLanterns = `<svg class="lanterns" viewBox="0 0 794 200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>`
+  + POSTER_LANTERNS.map(([x, y]) => `<line x1="${x}" y1="0" x2="${x}" y2="${y}" stroke="#0a0a0a" stroke-width="1.4"/>`).join('')
+  + POSTER_LANTERNS.map(([x, y, r, s], i) => `<g transform="translate(${x} ${y}) rotate(${r}) scale(${s}) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/>${lantern(...LANTERNS[i], 12)}</g>`).join('')
+  + '</svg>';
 // Dirección absoluta de cada página (para canonical, hreflang, Open Graph y sitemap)
 const pageUrl = (l, page) => `${SITE_URL}/${l === 'en' ? 'en/' : ''}${page === 'index.html' ? '' : page}`;
 const build = (lang) => {
@@ -137,7 +170,7 @@ const build = (lang) => {
   const nm = (full) => split(t.name(full));
 
   const head = (title, desc, page) => `<!doctype html>
-<html lang="${lang}">
+<html lang="${lang}" data-hours="${HOURS.map((h) => h.join('-')).join(',')}">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -163,13 +196,13 @@ const build = (lang) => {
 <script>document.documentElement.classList.add('js');</script>
 </head>`;
 
-  const navItems = (home) => [[home ? '#top' : 'index.html', t.home], ['carta.html', t.carta], [home ? '#destacados' : 'index.html#destacados', t.dest], [home ? '#donde' : 'index.html#donde', t.where], [home ? '#opiniones' : 'index.html#opiniones', t.revNav], [home ? '#historia' : 'index.html#historia', t.storyNav]];
+  const navItems = (home) => [[home ? '#top' : 'index.html', t.home], ['carta.html', t.carta], [home ? '#destacados' : 'index.html#destacados', t.dest], [home ? '#donde' : 'index.html#donde', t.where], [home ? '#opiniones' : 'index.html#opiniones', t.revNav], ...(STORY_READY ? [[home ? '#historia' : 'index.html#historia', t.storyNav]] : [])];
   const header = (home, page) => `<div class="progress" data-progress aria-hidden="true"></div>
 <header class="nav" data-nav>
   <div class="container nav__in">
     <a class="nav__brand" href="${home ? '#top' : 'index.html'}" aria-label="Wok Two, ${t.home.toLowerCase()}"><img class="logo" src="${P}logo.svg" alt="" width="40" height="40">Wok Two</a>
     <nav class="nav__links" aria-label="${t.mainNav}">${navItems(home).slice(1).map(([h, x]) => `<a class="slide" href="${h}" data-text="${x}"><span>${x}</span></a>`).join('')}<a class="slide slide--lang" href="${OTHER}${page}" hreflang="${t.otherLang}" lang="${t.otherLang}" aria-label="${t.otherLabel}"><span>${LANG_ICON}${lang.toUpperCase()}</span><span class="roll-b" aria-hidden="true">${lang.toUpperCase()}</span></a></nav>
-    <a class="nav__cta" href="${home ? 'carta.html' : 'carta.html'}" data-open-cart>${t.order}</a>
+    <a class="nav__cta" href="carta.html" data-open-cart>${t.order}</a>
     <button class="burger" type="button" aria-expanded="false" aria-controls="menu" data-burger><span></span><span></span><span></span><span class="visually-hidden">${t.menuBtn}</span></button>
   </div>
 </header>
@@ -182,37 +215,36 @@ const build = (lang) => {
     <div class="foot__brand"><a class="foot__logo" href="${home ? '#top' : 'index.html'}"><img class="logo" src="${P}logo.svg" alt="" width="44" height="44">Wok Two</a><p>${t.footBlurb}</p></div>
     <div class="foot__col"><h2>${t.nav}</h2><ul>${navItems(home).slice(1).map(([h, x]) => `<li><a href="${h}">${x}</a></li>`).join('')}</ul></div>
     <div class="foot__col"><h2>${t.contact}</h2><ul><li><a href="${MAPS}" rel="noopener">C/ Cuarteles, 15</a></li><li><a href="${MAPS}" rel="noopener">29002 Málaga</a></li><li><a href="carta.html" data-open-cart>${t.order}</a></li></ul></div>
-    <div class="foot__col"><h2>${t.hours}</h2><ul><li>${t.everyDay}</li><li class="num">12:00 – 16:30</li><li class="num">19:00 – 24:00</li></ul></div>
+    <div class="foot__col"><h2>${t.hours}</h2><ul><li>${t.everyDay}</li>${HOURS.map(([a, b]) => `<li class="num">${a} – ${b}</li>`).join('')}</ul></div>
   </div>
   <div class="container foot__base"><p>© ${new Date().getFullYear()} Wok Two. ${t.rights}</p></div>
 </footer>
 <a class="visit" href="${home ? '#donde' : 'index.html#donde'}" data-visit>${PIN}<span>${t.visit}</span></a>`;
 
   // Pedido para recoger: botón flotante, panel del carrito y catálogo (cart.js los gestiona)
-  const cartMarkup = `<button type="button" class="cart-fab" data-open-cart hidden><span class="cart-fab__n" data-dynamic data-cart-count>0</span><span>${t.cartFab}</span><span class="cart-fab__t num" data-dynamic data-cart-fab-total></span></button>
+  const cartMarkup = `<button type="button" class="cart-fab" data-open-cart hidden><span class="cart-fab__n" data-cart-count>0</span><span>${t.cartFab}</span><span class="cart-fab__t num" data-cart-fab-total></span></button>
 <dialog class="cart" id="cart" aria-labelledby="cart-title" data-wa="${WHATSAPP}">
   <form class="cart__in" novalidate>
     <header class="cart__head"><h2 id="cart-title">${t.cartTitle}</h2><button type="button" class="cart__x" data-cart-close aria-label="${t.cartClose}">×</button></header>
     <div class="cart__empty" data-cart-empty><p>${t.cartEmpty}</p><a class="cart__see" href="carta.html" data-cart-close>${t.cartEmptyBtn}</a></div>
-    <ul class="cart__list" data-dynamic data-cart-list></ul>
-    <div class="cart__sum" data-cart-sum><span>${t.cartTotal}</span><strong class="num" data-dynamic data-cart-total></strong></div>
+    <ul class="cart__list" data-cart-list></ul>
+    <div class="cart__sum" data-cart-sum><span>${t.cartTotal}</span><strong class="num" data-cart-total></strong></div>
     <div class="cart__fields" data-cart-fields>
       <p class="cart__info">${t.pickupInfo}</p>
       <label>${t.fName}<input name="name" autocomplete="name" required maxlength="60"></label>
       <label>${t.fPhone}<input name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="20"></label>
-      <label>${t.fTime}<select name="time" data-dynamic data-cart-time required></select></label>
+      <label>${t.fTime}<select name="time" data-cart-time required></select></label>
       <label>${t.fNotes}<textarea name="notes" rows="2" maxlength="200" placeholder="${t.fNotesPh}"></textarea></label>
-      <p class="cart__err" role="alert" data-dynamic data-cart-err></p>
+      <p class="cart__err" role="alert" data-cart-err></p>
       <button type="submit" class="cart__send">${t.send}</button>
       <button type="button" class="cart__clear" data-cart-clear>${t.cartClear}</button>
     </div>
   </form>
 </dialog>
-<script type="application/json" id="catalog">${JSON.stringify(catalog)}</script>
+<script type="application/json" id="catalog">${json(catalog)}</script>
 `;
   const scripts = `${cartMarkup}<script src="${P}app.js?v=${V}"></script>
 <script src="${P}cart.js?v=${V}"></script>
-<script>document.querySelectorAll('[data-slot] img').forEach((i) => { if (i.complete && !i.naturalWidth) i.remove(); else i.addEventListener('error', () => i.remove(), { once: true }); });</script>
 </body>
 </html>
 `;
@@ -254,7 +286,7 @@ const build = (lang) => {
         <div class="spec__body"><span class="spec__n" aria-hidden="true">${n}</span><h3>${title}</h3><p>${text}</p></div>
       </a>`; }).join('\n      ');
 
-  const stats = [total, menu.length, 56].map((n, i) => `<div class="stat reveal" style="--d:${i * 0.1}s"><dd class="num" data-count="${n}">${n}</dd><dt>${t.stats[i]}</dt></div>`).join('\n        ');
+  const stats = [total, menu.length, platterPieces].map((n, i) => `<div class="stat reveal" style="--d:${i * 0.1}s"><dt>${t.stats[i]}</dt><dd class="num" data-count="${n}">${n}</dd></div>`).join('\n        ');
   const ticker = `<ul class="ticker__list">${t.ticker.map((x) => `<li>${x}</li>`).join('')}</ul>`;
   const chev = (d) => `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
 
@@ -268,7 +300,7 @@ ${header(true, 'index.html')}
     <div class="hero__glow" aria-hidden="true"></div>
     ${jpColumn('l', JP_LEFT)}
     ${jpColumn('r', JP_RIGHT)}
-    <div class="hero__lanterns" aria-hidden="true"><div class="hl" style="left:3%;--y:120px;--s:1.25;--r:-3deg;--d:0s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">福</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="left:11%;--y:176px;--s:0.9;--r:4deg;--d:-1.4s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">寿</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="left:18.5%;--y:108px;--s:1.1;--r:-2deg;--d:-2.6s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">味</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="left:7%;--y:268px;--s:0.78;--r:5deg;--d:-0.7s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">酒</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl hl--wide" style="left:25%;--y:206px;--s:0.66;--r:-4deg;--d:-3.3s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">喜</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl hl--wide" style="left:31%;--y:112px;--s:0.8;--r:3deg;--d:-1.9s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">祭</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="right:3%;--y:112px;--s:1.2;--r:3deg;--d:-0.4s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">旨</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="right:11%;--y:184px;--s:0.9;--r:-4deg;--d:-2.1s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">酒</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="right:18.5%;--y:104px;--s:1.1;--r:2deg;--d:-3.0s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">福</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl" style="right:7%;--y:264px;--s:0.78;--r:-5deg;--d:-1.1s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">寿</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl hl--wide" style="right:25%;--y:200px;--s:0.66;--r:4deg;--d:-2.4s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">味</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div><div class="hl hl--wide" style="right:31%;--y:116px;--s:0.8;--r:-3deg;--d:-0.9s"><svg viewBox="0 0 60 118" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="17" y="2" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 10 C-2 18 -2 60 17 68 L43 68 C62 60 62 18 43 10 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 24 Q30 29 53 24"/><path d="M3 36 Q30 42 57 36"/><path d="M3 48 Q30 54 57 48"/><path d="M7 60 Q30 66 53 60"/></g><text x="30" y="48" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">喜</text><rect x="17" y="68" width="26" height="8" rx="2" fill="#0a0a0a"/><g stroke="#0a0a0a" stroke-width="1.6"><line x1="30" y1="76" x2="30" y2="92"/></g><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="88" x2="26" y2="100"/><line x1="30" y1="88" x2="30" y2="102"/><line x1="30" y1="88" x2="34" y2="100"/></g></svg></div></div>
+    <div class="hero__lanterns" aria-hidden="true">${heroLanterns}</div>
     ${heroSlides}
     <div class="hero__dots" role="group" aria-label="${t.slides}">${slides.map((_, i) => `<button type="button" class="dot${i === 0 ? ' is-on' : ''}" data-dot="${i}" aria-label="${t.slide} ${i + 1}"${i === 0 ? ' aria-current="true"' : ''}></button>`).join('')}</div>
     <a class="hero__scroll" href="#especialidad"><span>Scroll</span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></a>
@@ -330,8 +362,7 @@ ${header(true, 'index.html')}
         <div class="find__block"><strong class="tag">${t.address}</strong><p class="find__addr">${t.addr}</p></div>
         <div class="find__block"><strong class="tag">${t.hours}</strong>
           <ul class="hours">
-            <li class="hours__item"><span>${t.lunch}</span><span class="num">12:00 - 16:30</span></li>
-            <li class="hours__item"><span>${t.dinner}</span><span class="num">19:00 - 24:00</span></li>
+            ${[t.lunch, t.dinner].map((label, i) => `<li class="hours__item"><span>${label}</span><span class="num">${HOURS[i][0]} – ${HOURS[i][1]}</span></li>`).join('\n            ')}
           </ul>
           <p class="status" data-status aria-live="polite"><span class="status__k">${t.now}</span><span data-status-text>${t.statusDefault}</span></p>
         </div>
@@ -350,7 +381,7 @@ ${header(true, 'index.html')}
     </div>
   </section>
 
-  <section class="sec sec--black" id="historia" aria-labelledby="h-story">
+${STORY_READY ? `  <section class="sec sec--black" id="historia" aria-labelledby="h-story">
     <div class="container story">
       <figure class="story__photo reveal"><img src="${P}images/historia-placeholder.svg" alt="${t.storyAlt}" width="800" height="1000" loading="lazy" decoding="async"></figure>
       <div class="story__text reveal" style="--d:.2s">
@@ -359,7 +390,7 @@ ${header(true, 'index.html')}
         ${t.story.map((p) => `<p>${esc(p)}</p>`).join('')}
       </div>
     </div>
-  </section>
+  </section>` : ''}
 </main>
 
 ${footer(true)}
@@ -410,14 +441,12 @@ ${scripts}`;
   return { home: typo(home), carta: typo(carta) };
 };
 
-// Cada página lleva dentro la otra versión del idioma (para cambiar de idioma sin recargar, también abriendo el archivo directamente).
-const pages = { es: build('es'), en: build('en') };
-const embed = (html, other) => html.replace(/<script src="[^"]*app\.js/, (m) => `<script type="text/x-alt-lang" id="alt-lang">${other.replace(/<\/script/g, '<\\/script')}</script>\n${m}`);
-for (const [lang, other] of [['es', 'en'], ['en', 'es']]) {
+for (const lang of ['es', 'en']) {
   const dir = new URL(lang === 'en' ? './en/' : './', import.meta.url);
   mkdirSync(dir, { recursive: true });
-  writeFileSync(new URL('index.html', dir), embed(pages[lang].home, pages[other].home));
-  writeFileSync(new URL('carta.html', dir), embed(pages[lang].carta, pages[other].carta));
+  const { home, carta } = build(lang);
+  writeFileSync(new URL('index.html', dir), home);
+  writeFileSync(new URL('carta.html', dir), carta);
 }
 // ============ robots.txt y sitemap.xml (con SITE_URL) ============
 writeFileSync(new URL('robots.txt', import.meta.url), ['User-agent: *', 'Allow: /', 'Disallow: /qr.html', '', `Sitemap: ${SITE_URL}/sitemap.xml`, ''].join('\n'));
@@ -483,7 +512,7 @@ writeFileSync(new URL('qr.html', import.meta.url), `<!doctype html>
 ${SITE_URL_SET ? '' : `<p class="warn">Dirección provisional (${qrUrl}). Antes de imprimir, pon la dirección real en SITE_URL de build.mjs y ejecuta node build.mjs.</p>`}
 <div class="bar"><button type="button" onclick="print()">Imprimir cartel</button></div>
 <main class="poster">
-  <svg class="lanterns" viewBox="0 0 794 200" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><defs><radialGradient id="glow"><stop offset="0" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></radialGradient></defs><line x1="34" y1="0" x2="34" y2="22" stroke="#0a0a0a" stroke-width="1.4"/><line x1="92" y1="0" x2="92" y2="58" stroke="#0a0a0a" stroke-width="1.4"/><line x1="150" y1="0" x2="150" y2="10" stroke="#0a0a0a" stroke-width="1.4"/><line x1="58" y1="0" x2="58" y2="112" stroke="#0a0a0a" stroke-width="1.4"/><line x1="172" y1="0" x2="172" y2="92" stroke="#0a0a0a" stroke-width="1.4"/><line x1="112" y1="0" x2="112" y2="150" stroke="#0a0a0a" stroke-width="1.4"/><line x1="754" y1="0" x2="754" y2="10" stroke="#0a0a0a" stroke-width="1.4"/><line x1="690" y1="0" x2="690" y2="60" stroke="#0a0a0a" stroke-width="1.4"/><line x1="630" y1="0" x2="630" y2="24" stroke="#0a0a0a" stroke-width="1.4"/><line x1="736" y1="0" x2="736" y2="108" stroke="#0a0a0a" stroke-width="1.4"/><line x1="644" y1="0" x2="644" y2="100" stroke="#0a0a0a" stroke-width="1.4"/><line x1="702" y1="0" x2="702" y2="152" stroke="#0a0a0a" stroke-width="1.4"/><g transform="translate(34 22) rotate(-3) scale(0.92) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">福</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(92 58) rotate(4) scale(0.7) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">寿</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(150 10) rotate(-2) scale(1.05) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">味</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(58 112) rotate(5) scale(0.6) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">酒</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(172 92) rotate(-4) scale(0.52) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">喜</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(112 150) rotate(3) scale(0.46) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">祭</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(754 10) rotate(3) scale(1.0) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">旨</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(690 60) rotate(-4) scale(0.72) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">酒</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(630 24) rotate(2) scale(0.9) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">福</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(736 108) rotate(-5) scale(0.6) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#fbf1dc"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">寿</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(644 100) rotate(4) scale(0.5) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#f4d58d"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">味</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g><g transform="translate(702 152) rotate(-3) scale(0.44) translate(-30 8)"><line x1="30" y1="-8" x2="30" y2="14" stroke="#0a0a0a" stroke-width="1.6"/><ellipse cx="30" cy="52" rx="34" ry="38" fill="url(#glow)"/><rect x="17" y="14" width="26" height="8" rx="2" fill="#0a0a0a"/><path d="M17 22 C-2 30 -2 72 17 80 L43 80 C62 72 62 30 43 22 Z" fill="#ffffff"/><g stroke="#b6161e" stroke-opacity=".55" stroke-width="1.3" fill="none"><path d="M7 36 Q30 41 53 36"/><path d="M3 48 Q30 54 57 48"/><path d="M3 60 Q30 66 57 60"/><path d="M7 72 Q30 78 53 72"/></g><text x="30" y="60" text-anchor="middle" font-family="Dela Gothic One, Noto Sans JP, Yu Gothic, sans-serif" font-size="22" fill="#b6161e">喜</text><rect x="17" y="80" width="26" height="8" rx="2" fill="#0a0a0a"/><line x1="30" y1="88" x2="30" y2="104" stroke="#0a0a0a" stroke-width="1.6"/><g stroke="#0a0a0a" stroke-width="1.2"><line x1="30" y1="100" x2="26" y2="112"/><line x1="30" y1="100" x2="30" y2="114"/><line x1="30" y1="100" x2="34" y2="112"/></g></g></svg>
+  ${posterLanterns}
   <p class="welcome" lang="ja">いらっしゃいませ</p>
   
   

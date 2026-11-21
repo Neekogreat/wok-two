@@ -18,11 +18,13 @@ Genera `index.html`, `carta.html`, `en/index.html`, `en/carta.html`, `qr.html`, 
 | Quiero cambiar… | Dónde |
 |---|---|
 | Precios, platos, descripciones, fotos | `menu.mjs` (y `menu-en.mjs` para el inglés) |
-| Textos de la web, horario, enlaces | `build.mjs` (diccionarios `L.es` y `L.en`) |
+| Textos de la web, enlaces | `build.mjs` (diccionarios `L.es` y `L.en`) |
+| Horario (web, aviso de abierto/cerrado y horas de recogida) | `HOURS` en `build.mjs` |
+| Publicar «Nuestra historia» (cuando haya texto y foto reales) | textos `story` en `L.es`/`L.en`, foto en `images/`, y `STORY_READY = true` en `build.mjs` |
 | Número de WhatsApp que recibe los pedidos | `WHATSAPP` en `build.mjs` |
 | Dirección de la web (QR, canonical, sitemap, redes) | `SITE_URL` en `build.mjs`; al ser la definitiva, `SITE_URL_SET = true` |
 | Estilos | `styles.css` |
-| Comportamiento (menú, idioma, carrusel) | `app.js` |
+| Comportamiento (menú, carrusel, pestañas de la carta, abierto/cerrado) | `app.js` |
 | Carrito y pedido | `cart.js` |
 
 Después de cambiar algo, ejecuta `node build.mjs`.
@@ -40,4 +42,4 @@ en `menu.mjs`, `node fetch-images.mjs` la descarga.
 ## Pedidos
 
 El cliente elige platos, rellena nombre, teléfono y hora de recogida, y se abre WhatsApp con el pedido escrito.
-No hay pago online: se paga en el local. Las horas de recogida respetan el horario (12:00–16:30 y 19:00–24:00).
+No hay pago online: se paga en el local. Las horas de recogida respetan el horario (`HOURS` en `build.mjs`) y dejan 30 minutos de preparación.

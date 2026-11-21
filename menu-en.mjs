@@ -11,9 +11,9 @@ export const names = {
   'Tallarines con Huevo y Verduras': 'Noodles with Egg and Vegetables', 'Fideos con Verduras': 'Vermicelli with Vegetables',
   'Tallarines con Pechuga de Pollo': 'Noodles with Chicken Breast', 'Tallarines con Pato': 'Noodles with Duck',
   'Fideos con Langostino': 'Vermicelli with Prawns', 'Tallarines con Marisco': 'Noodles with Seafood',
-  'Tallarines con Muslo de Pollo': 'Noodles with Chicken Thigh', 'Fideos Frito con Ternera': 'Fried Vermicelli with Beef',
-  'Fideos Frito con Pollo': 'Fried Vermicelli with Chicken', 'Tallarines Fritos con Ternera': 'Fried Noodles with Beef',
-  'Tallarines Frito con Pollo': 'Fried Noodles with Chicken', 'Arroz Frito Tres Delicias': 'Three Delights Fried Rice',
+  'Tallarines con Muslo de Pollo': 'Noodles with Chicken Thigh', 'Fideos Fritos con Ternera': 'Fried Vermicelli with Beef',
+  'Fideos Fritos con Pollo': 'Fried Vermicelli with Chicken', 'Tallarines Fritos con Ternera': 'Fried Noodles with Beef',
+  'Tallarines Fritos con Pollo': 'Fried Noodles with Chicken', 'Arroz Frito Tres Delicias': 'Three Delights Fried Rice',
   'Arroz Frito con Verduras': 'Vegetable Fried Rice', 'Arroz Frito con Pollo': 'Chicken Fried Rice',
   'Arroz Bulgogi Blanco con Ternera': 'White Rice with Beef Bulgogi', 'Arroz Frito con Pollo Curry al Estilo Tailandés': 'Thai-Style Chicken Curry Fried Rice',
   'Arroz Frito con Marisco': 'Seafood Fried Rice', 'Arroz Frito con Ternera': 'Beef Fried Rice',
@@ -111,12 +111,12 @@ export const descs = {
   '2 nigiris de salmón, 2 nigiris de atún, 6 californias con cebolla y 2 variados': '2 salmon nigiri, 2 tuna nigiri, 6 California with onion and 2 assorted',
   '6 makis salmón, 6 makis atún, 4 makis aguacate, 4 makis gambas, 4 californias con cebolla, 4 californias con pollo, 4 nigiris salmón y variados': '6 salmon maki, 6 tuna maki, 4 avocado maki, 4 prawn maki, 4 California with onion, 4 chicken California, 4 salmon nigiri and assorted',
   '4 makis salmón, 4 makis atún, 4 makis aguacate y 4 makis gambas': '4 salmon maki, 4 tuna maki, 4 avocado maki and 4 prawn maki',
-  'Curry al estilo tailandés': 'Thai-style curry',
+  'Arroz frito al wok con ternera.': 'Wok-fried rice with beef.',
   'Wakame, salmón, aguacate, cebolla crujiente': 'Wakame, salmon, avocado, crispy onion',
 };
 
 // Secciones.
-export const cats = { menus: 'Set Menus', empezar: 'Starters', niguiri: 'Nigiri', makis: 'Maki', fideos: 'Noodles', arroces: 'Rice', variados: 'Assorted Dishes', bebidas: 'Drinks' };
+export const cats = { menus: 'Set Menus', empezar: 'Starters', nigiri: 'Nigiri', makis: 'Maki', fideos: 'Noodles', arroces: 'Rice', variados: 'Assorted Dishes', bebidas: 'Drinks' };
 export const notes = {};
 
 // Nombre completo "Nombre, detalle" en inglés.

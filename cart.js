@@ -4,8 +4,9 @@
 (() => {
   const KEY = 'woktwo-cart';
   const MAX_QTY = 20;
-  const WINDOWS = [[12 * 60, 16 * 60 + 30], [19 * 60, 24 * 60]]; // comidas y cenas (hora de Madrid)
   const MIN_PREP = 30; // minutos que tarda un pedido en estar listo
+  // Utilidades y horario (HOURS de build.mjs) que deja app.js, que se carga antes
+  const { norm, nowMadrid, hhmm, hours } = window.WokTwo;
 
   let catalog = [];
   try { catalog = JSON.parse(document.getElementById('catalog').textContent); } catch { /* sin catálogo no hay carrito */ }
@@ -25,11 +26,11 @@
       eWa: 'Online orders are not available yet. Please call us or visit the restaurant.', ok: 'WhatsApp has opened with your order: press “Send” there to confirm it.',
     },
   };
-  const lang = () => (document.documentElement.lang === 'en' ? 'en' : 'es');
-  const eur = (n) => (lang() === 'en' ? '€' + n.toFixed(2) : n.toFixed(2).replace('.', ',') + ' €');
+  const lang = document.documentElement.lang === 'en' ? 'en' : 'es';
+  const money = (n) => n.toFixed(2).replace('.', ',') + '\u00A0€';
+  const eur = (n) => (lang === 'en' ? '€' + n.toFixed(2) : money(n));
   const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
   const $ = (sel) => document.querySelector(sel);
-  const norm = (p) => p.replace(/(^|\/)index\.html$/, '$1').replace(/\.html$/, '').replace(/\/+$/, '');
 
   // --- Estado ---
   const load = () => {
@@ -44,20 +45,15 @@
   const save = () => { try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch { /* sin almacenamiento: el carrito dura lo que dure la página */ } };
   const count = () => Object.values(cart).reduce((a, b) => a + b, 0);
   const total = () => Object.entries(cart).reduce((a, [id, q]) => a + byName[id][2] * q, 0);
-  const nameOf = (id) => byName[id][lang() === 'en' ? 1 : 0];
+  const nameOf = (id) => byName[id][lang === 'en' ? 1 : 0];
 
   // --- Horas de recogida: cada 15 min dentro del horario, a partir de ahora + el tiempo de preparación ---
-  const nowMadrid = () => {
-    const p = new Intl.DateTimeFormat('es-ES', { timeZone: 'Europe/Madrid', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date());
-    return +p.find((x) => x.type === 'hour').value * 60 + +p.find((x) => x.type === 'minute').value;
-  };
   const slots = () => {
     const earliest = Math.ceil((nowMadrid() + MIN_PREP) / 15) * 15;
     const out = [];
-    for (const [a, b] of WINDOWS) for (let m = Math.max(a, earliest); m <= b - 15; m += 15) out.push(m);
+    for (const [a, b] of hours) for (let m = Math.max(a, earliest); m <= b - 15; m += 15) out.push(m);
     return out;
   };
-  const hhmm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 
   // --- Pintar ---
   const render = () => {
@@ -70,7 +66,7 @@
     }
     const dlg = $('#cart');
     if (!dlg) return;
-    const s = S[lang()];
+    const s = S[lang];
     dlg.querySelector('[data-cart-list]').innerHTML = Object.keys(cart).map((id) => {
       const nm = esc(nameOf(id));
       return `<li class="cart__item"><span class="cart__name">${nm}</span>`
@@ -100,7 +96,6 @@
 
   // --- Mensaje del pedido (siempre en español: lo lee el restaurante) ---
   const message = (f) => {
-    const money = (n) => n.toFixed(2).replace('.', ',') + ' €';
     const lines = Object.keys(cart).map((id) => `${cart[id]} x ${byName[id][0]} (${money(byName[id][2] * cart[id])})`);
     return [
       '*Pedido para recoger - Wok Two*',
@@ -158,21 +153,20 @@
     const form = e.target.closest && e.target.closest('#cart form');
     if (!form) return;
     e.preventDefault();
-    const s = S[lang()];
+    const s = S[lang];
     const dlg = $('#cart');
-    const f = { name: form.name.value.trim(), phone: form.phone.value.trim(), time: form.time.value, notes: form.notes.value.trim() };
+    const el = form.elements;
+    const f = { name: el.name.value.trim(), phone: el.phone.value.trim(), time: el.time.value, notes: el.notes.value.trim() };
     const wa = (dlg.dataset.wa || '').replace(/\D/g, '');
     if (!count()) return setErr(s.eEmpty);
-    if (f.name.length < 2) { form.name.focus(); return setErr(s.eName); }
-    if (f.phone.replace(/\D/g, '').length < 9) { form.phone.focus(); return setErr(s.ePhone); }
+    if (f.name.length < 2) { el.name.focus(); return setErr(s.eName); }
+    if (f.phone.replace(/\D/g, '').length < 9) { el.phone.focus(); return setErr(s.ePhone); }
     if (!f.time) return setErr(s.eTime);
     if (!/^\d{9,15}$/.test(wa)) return setErr(s.eWa);
     setErr(s.ok);
     window.open(`https://wa.me/${wa}?text=${encodeURIComponent(message(f))}`, '_blank', 'noopener');
   });
 
-  // Al cambiar de idioma, se vuelven a pintar nombres e importes
-  new MutationObserver(render).observe(document.documentElement, { attributes: true, attributeFilter: ['lang'] });
   // Si se abre el carrito en otra pestaña, se sincroniza
   addEventListener('storage', (e) => { if (e.key === KEY) { cart = load(); render(); } });
   addEventListener('pageshow', () => { cart = load(); render(); });

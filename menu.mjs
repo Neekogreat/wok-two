@@ -1,4 +1,4 @@
-// Carta de Wok Two, copiada de https://www.just-eat.es/restaurants-wok-two-malaga/menu (73 platos, 8 secciones).
+// Carta de Wok Two, copiada de https://www.just-eat.es/restaurants-wok-two-malaga/menu.
 // Cada plato: [nombre, descripción, precio en €, id de foto en Just Eat ('' si no hay o lleva marca de agua)].
 // Si cambia un precio o un plato, se edita aquí y se ejecuta `node build.mjs`.
 export const menu = [
@@ -26,7 +26,7 @@ export const menu = [
     ['Pan de Gambas', 'Las tortitas de gamba de siempre, crujientes. Van con cualquier plato.', 1.5, 'da229bd078a22848882a5cdf0461e912'],
     ['Rainbow Roll, 9 unidades', 'Roll cubierto por fuera con láminas de pescado variado.', 9.9, ''],
   ] },
-  { id: 'niguiri', label: 'Nigiri', items: [
+  { id: 'nigiri', label: 'Nigiri', items: [
     ['Nigiri de Anguila, 2 piezas', 'Anguila sobre arroz de sushi, con su salsa dulce.', 3.2, '6a042b825bb737891a440944faeed951'],
     ['Nigiri de Langostino, 2 piezas', 'Langostino cocido sobre arroz de sushi.', 3.2, 'be9ba9bf76ab7b650921a0742de4dd2e'],
     ['Nigiri de Atún, 2 piezas', 'Atún sobre arroz de sushi.', 3.2, 'c7e5260a4987923d35d6d168b6e170c6'],
@@ -55,10 +55,10 @@ export const menu = [
     ['Fideos con Langostino', 'Fideos finos salteados con langostinos.', 6.5, '3d87830904b0d0a78cfbcbef2aaf47a0'],
     ['Tallarines con Marisco', 'Tallarines al wok con marisco variado.', 6.2, 'e4bbe88b5fc9eb57e54f1f91c95ddc1f'],
     ['Tallarines con Muslo de Pollo', 'Tallarines salteados con muslo de pollo, más jugoso que la pechuga.', 6, '5f4943395a9a8c437be8edb42422b7b2'],
-    ['Fideos Frito con Ternera', 'Fideos fritos con ternera salteada.', 7.5, '39dce37be9253e2da99755a82bfa0d78'],
-    ['Fideos Frito con Pollo', 'Fideos fritos con pollo salteado.', 7, '56e860b1e1eb58576dccae926a6620a1'],
+    ['Fideos Fritos con Ternera', 'Fideos fritos con ternera salteada.', 7.5, '39dce37be9253e2da99755a82bfa0d78'],
+    ['Fideos Fritos con Pollo', 'Fideos fritos con pollo salteado.', 7, '56e860b1e1eb58576dccae926a6620a1'],
     ['Tallarines Fritos con Ternera', 'Tallarines fritos con ternera.', 7.5, ''],
-    ['Tallarines Frito con Pollo', 'Tallarines fritos con pollo.', 6.8, ''],
+    ['Tallarines Fritos con Pollo', 'Tallarines fritos con pollo.', 6.8, ''],
   ] },
   { id: 'arroces', label: 'Arroces', items: [
     ['Arroz Frito Tres Delicias, pequeño', 'El arroz frito de toda la vida, con huevo, jamón york y guisantes.', 3.4, '3c383c6cf9c3f901dc2b65c1cd5db3c1'],
@@ -68,7 +68,7 @@ export const menu = [
     ['Arroz Bulgogi Blanco con Ternera', 'Arroz blanco con ternera marinada al estilo coreano.', 6.5, '61580d405e3f703f1ef9b7642c552fde'],
     ['Arroz Frito con Pollo Curry al Estilo Tailandés', 'Arroz frito con pollo al curry, a la tailandesa.', 6.5, '72b43dd6c609b56de141bd4c298f1331'],
     ['Arroz Frito con Marisco', 'Arroz frito al wok con marisco.', 6.2, '84b94e262d2f6818d799bbb50f977f40'],
-    ['Arroz Frito con Ternera', 'Curry al estilo tailandés', 6.9, '842d388a40da6cb237190abc8259074c'],
+    ['Arroz Frito con Ternera', 'Arroz frito al wok con ternera.', 6.9, '842d388a40da6cb237190abc8259074c'],
     ['Arroz Frito Estilo Tailandés', 'Arroz frito a la tailandesa.', 6.5, '22a5bff28a1b9b60a1a15d249070ed6a'],
     ['Arroz Frito Estilo Cantonés', 'Arroz frito a la cantonesa.', 6.8, '9eddbb5e45a47df08fb1448ee5006113'],
   ] },
@@ -103,9 +103,6 @@ export const menu = [
     ['Cerveza', 'Cerveza fría para acompañar.', 2.8, ''],
   ] },
 ];
-
-// Carrusel de la portada: sushi de la carta, por nombre exacto (todos con foto).
-export const carrusel = ['Menú 11, 40 unidades', 'Salmón Uramaki, 9 unidades', 'Nigiri de Salmón, 2 piezas', 'Menú 8, 18 unidades', 'Maki Variado, 16 unidades', 'Avocado Roll, 9 unidades', 'Menú 6, 18 unidades', 'Spicy California, 9 unidades', 'California Salmón, 9 unidades'];
 
 // Destacados: los cinco que Just Eat marca como destacados, por nombre exacto.
 export const destacados = ['Maki Aguacate, 16 unidades', 'Tallarines con Pechuga de Pollo', 'Menú 9, 18 unidades', 'Pollo con Almendras', 'California Salmón, 9 unidades'];

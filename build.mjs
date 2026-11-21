@@ -20,8 +20,8 @@ const MAPS = 'https://www.google.com/maps/search/?api=1&query=' + encodeURICompo
 // Horario (todos los días): comidas y cenas. Es el único sitio donde se cambia: de aquí salen los textos de la web,
 // el aviso de "abierto/cerrado" (app.js) y las horas de recogida del pedido (cart.js), que lo leen de <html data-hours>.
 const HOURS = [['12:00', '16:30'], ['19:00', '24:00']];
-// "Nuestra historia": la sección y su enlace no se publican hasta tener el texto y la foto reales (textos en L.es.story y L.en.story).
-const STORY_READY = false;
+// "Nuestra historia": sección y enlace en el menú (textos en L.es.story y L.en.story). Con false se ocultan las dos cosas.
+const STORY_READY = true;
 const NBSP = '\u00A0'; // espacio que no se parte
 const esc = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
 const json = (v) => JSON.stringify(v).replace(/</g, '\\u003c'); // JSON seguro dentro de <script>

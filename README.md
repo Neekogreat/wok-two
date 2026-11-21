@@ -20,7 +20,7 @@ Genera `index.html`, `carta.html`, `en/index.html`, `en/carta.html`, `qr.html`, 
 | Precios, platos, descripciones, fotos | `menu.mjs` (y `menu-en.mjs` para el inglés) |
 | Textos de la web, enlaces | `build.mjs` (diccionarios `L.es` y `L.en`) |
 | Horario (web, aviso de abierto/cerrado y horas de recogida) | `HOURS` en `build.mjs` |
-| Publicar «Nuestra historia» (cuando haya texto y foto reales) | textos `story` en `L.es`/`L.en`, foto en `images/`, y `STORY_READY = true` en `build.mjs` |
+| «Nuestra historia» (texto y foto) | textos `story` en `L.es`/`L.en` y foto en `images/`; para ocultarla, `STORY_READY = false` en `build.mjs` |
 | Número de WhatsApp que recibe los pedidos | `WHATSAPP` en `build.mjs` |
 | Dirección de la web (QR, canonical, sitemap, redes) | `SITE_URL` en `build.mjs`; al ser la definitiva, `SITE_URL_SET = true` |
 | Estilos | `styles.css` |
